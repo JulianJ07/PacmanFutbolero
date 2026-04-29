@@ -23,6 +23,7 @@ class Rival {
       if (~pathReady) {
          let pathDistance = Array.new(651);
          let pathQueue = Array.new(651);
+         do clearAllPathDistance();
          let pathReady = true;
       }
 
@@ -117,7 +118,7 @@ class Rival {
       }
 
       let straightSteps = straightSteps + 1;
-      if (straightSteps < 3) {
+      if (straightSteps < 2) {
          return;
       }
       let straightSteps = 0;
@@ -147,22 +148,17 @@ class Rival {
    }
 
    method boolean moveByBestPath(int targetRow, int targetCol) {
-      var int i;
       var int head;
       var int tail;
       var int current;
       var int currentRow;
       var int currentCol;
       var int currentDistance;
+      var boolean foundSelf;
+      var boolean moved;
 
       if (~board.canEnter(targetRow, targetCol)) {
          return false;
-      }
-
-      let i = 0;
-      while (i < 651) {
-         let pathDistance[i] = -1;
-         let i = i + 1;
       }
 
       let current = indexOf(targetRow, targetCol);
@@ -170,21 +166,57 @@ class Rival {
       let pathQueue[0] = current;
       let head = 0;
       let tail = 1;
+      let foundSelf = false;
 
-      while (head < tail) {
+      while ((head < tail) & (~foundSelf)) {
          let current = pathQueue[head];
          let head = head + 1;
          let currentRow = rowOfIndex(current);
          let currentCol = colOfIndex(current);
          let currentDistance = pathDistance[current];
 
-         let tail = addPathCell(currentRow, currentCol + 1, currentDistance + 1, tail);
-         let tail = addPathCell(currentRow + 1, currentCol, currentDistance + 1, tail);
-         let tail = addPathCell(currentRow, currentCol - 1, currentDistance + 1, tail);
-         let tail = addPathCell(currentRow - 1, currentCol, currentDistance + 1, tail);
+         if ((currentRow = row) & (currentCol = col)) {
+            let foundSelf = true;
+         } else {
+            let tail = addPathCell(currentRow, currentCol + 1, currentDistance + 1, tail);
+            let tail = addPathCell(currentRow + 1, currentCol, currentDistance + 1, tail);
+            let tail = addPathCell(currentRow, currentCol - 1, currentDistance + 1, tail);
+            let tail = addPathCell(currentRow - 1, currentCol, currentDistance + 1, tail);
+         }
       }
 
-      return followBestNeighbor();
+      if (~foundSelf) {
+         do clearVisitedPath(tail);
+         return false;
+      }
+
+      let moved = followBestNeighbor();
+      do clearVisitedPath(tail);
+      return moved;
+   }
+
+   method void clearAllPathDistance() {
+      var int i;
+
+      let i = 0;
+      while (i < 651) {
+         let pathDistance[i] = -1;
+         let i = i + 1;
+      }
+
+      return;
+   }
+
+   method void clearVisitedPath(int tail) {
+      var int i;
+
+      let i = 0;
+      while (i < tail) {
+         let pathDistance[pathQueue[i]] = -1;
+         let i = i + 1;
+      }
+
+      return;
    }
 
    method int addPathCell(int nextRow, int nextCol, int nextDistance, int tail) {
