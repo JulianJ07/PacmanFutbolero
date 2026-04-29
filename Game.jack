@@ -18,11 +18,11 @@ class Game {
    constructor Game new() {
       let board = Board.new();
       let player = Player.new(board, 15, 15);
-      let rivalA = Rival.new(board, 9, 14, 0);
-      let rivalB = Rival.new(board, 9, 16, 1);
-      let rivalC = Rival.new(board, 10, 14, 2);
-      let rivalD = Rival.new(board, 10, 16, 3);
-      let rivalE = Rival.new(board, 11, 14, 0);
+      let rivalA = Rival.new(board, 9, 14);
+      let rivalB = Rival.new(board, 9, 16);
+      let rivalC = Rival.new(board, 10, 14);
+      let rivalD = Rival.new(board, 10, 16);
+      let rivalE = Rival.new(board, 11, 14);
       let score = 0;
       let tick = 0;
       let hudTick = 0;

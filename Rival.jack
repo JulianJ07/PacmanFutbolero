@@ -2,23 +2,15 @@ class Rival {
    field Board board;
    field int row;
    field int col;
-   field int homeRow;
-   field int homeCol;
-   field int direction;
-   field int seed;
    field boolean active;
    field boolean leavingCage;
    field int releaseDelay;
    field int straightSteps;
 
-   constructor Rival new(Board gameBoard, int startRow, int startCol, int startDirection) {
+   constructor Rival new(Board gameBoard, int startRow, int startCol) {
       let board = gameBoard;
       let row = startRow;
       let col = startCol;
-      let homeRow = startRow;
-      let homeCol = startCol;
-      let direction = startDirection;
-      let seed = (startRow * 17) + (startCol * 7) + startDirection;
       let active = false;
       let leavingCage = true;
       let releaseDelay = 0;
@@ -48,42 +40,6 @@ class Rival {
          let leavingCage = false;
          let releaseDelay = 0;
       }
-      return;
-   }
-
-   method void randomizeDirection() {
-      let seed = seed + 31 + (row * 3) + (col * 5) + (direction * 11);
-
-      while (seed > 36) {
-         let seed = seed - 37;
-      }
-
-      let direction = seed;
-      while (direction > 3) {
-         let direction = direction - 4;
-      }
-
-      return;
-   }
-
-   method void chooseDirectionToward(int targetRow, int targetCol) {
-      if (targetCol > col) {
-         let direction = 0;
-         return;
-      }
-      if (targetCol < col) {
-         let direction = 2;
-         return;
-      }
-      if (targetRow > row) {
-         let direction = 1;
-         return;
-      }
-      if (targetRow < row) {
-         let direction = 3;
-         return;
-      }
-      do randomizeDirection();
       return;
    }
 
