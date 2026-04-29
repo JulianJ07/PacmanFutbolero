@@ -573,18 +573,24 @@ call Rival.isActive 1
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
-push pointer 0
 push argument 1
-call Game.rivalTouchesPlayer 2
+call Rival.isResting 1
+not
 if-goto IF_TRUE1
 goto IF_FALSE1
 label IF_TRUE1
-push this 10
-push constant 0
-gt
+push pointer 0
+push argument 1
+call Game.rivalTouchesPlayer 2
 if-goto IF_TRUE2
 goto IF_FALSE2
 label IF_TRUE2
+push this 10
+push constant 0
+gt
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
 push this 7
 push constant 200
 add
@@ -598,11 +604,12 @@ pop temp 0
 push pointer 0
 call Game.drawHud 1
 pop temp 0
-goto IF_END2
-label IF_FALSE2
+goto IF_END3
+label IF_FALSE3
 push constant 0
 pop this 12
-label IF_END2
+label IF_END3
+label IF_FALSE2
 label IF_FALSE1
 label IF_FALSE0
 push constant 0

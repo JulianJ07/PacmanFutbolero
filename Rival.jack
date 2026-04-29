@@ -38,6 +38,10 @@ class Rival {
       return active;
    }
 
+   method boolean isResting() {
+      return releaseDelay > 0;
+   }
+
    method void release() {
       if (~active) {
          let active = true;
@@ -133,6 +137,9 @@ class Rival {
 
       if (releaseDelay > 0) {
          let releaseDelay = releaseDelay - 1;
+         if (releaseDelay = 0) {
+            do board.drawCell(row, col);
+         }
          do draw();
          return;
       }
@@ -200,12 +207,13 @@ class Rival {
 
    method void resetHome() {
       do board.drawCell(row, col);
-      let row = homeRow;
-      let col = homeCol;
-      let leavingCage = false;
-      let releaseDelay = 8;
+      let row = 10;
+      let col = 15;
+      let leavingCage = true;
+      let releaseDelay = 90;
       let straightSteps = 0;
       let active = true;
+      do board.drawCell(row, col);
       do draw();
       return;
    }
@@ -216,6 +224,11 @@ class Rival {
 
       let x = board.xOf(col);
       let y = board.yOf(row);
+
+      if (releaseDelay > 0) {
+         do drawResting();
+         return;
+      }
 
       do Screen.setColor(false);
       do Screen.drawRectangle(x + 3, y + 1, x + 6, y + 2);
@@ -229,6 +242,26 @@ class Rival {
       do Screen.drawRectangle(x + 4, y + 6, x + 5, y + 6);
       do Screen.drawRectangle(x + 4, y + 2, x + 4, y + 2);
       do Screen.drawRectangle(x + 6, y + 2, x + 6, y + 2);
+
+      return;
+   }
+
+   method void drawResting() {
+      var int x;
+      var int y;
+
+      let x = board.xOf(col);
+      let y = board.yOf(row);
+
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x + 2, y + 3, x + 7, y + 7);
+      do Screen.drawRectangle(x + 3, y + 2, x + 6, y + 2);
+      do Screen.drawRectangle(x + 3, y + 8, x + 6, y + 8);
+      do Screen.setColor(true);
+      do Screen.drawRectangle(x + 3, y + 4, x + 6, y + 4);
+      do Screen.drawRectangle(x + 4, y + 6, x + 5, y + 6);
+      do Screen.drawRectangle(x + 7, y + 1, x + 8, y + 1);
+      do Screen.drawRectangle(x + 8, y + 0, x + 8, y + 0);
 
       return;
    }

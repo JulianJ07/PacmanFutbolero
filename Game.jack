@@ -217,14 +217,16 @@ class Game {
 
    method void checkRivalCollision(Rival rival) {
       if (rival.isActive()) {
-         if (rivalTouchesPlayer(rival)) {
-            if (powerTimer > 0) {
-               let score = score + 200;
-               do rival.resetHome();
-               do player.draw();
-               do drawHud();
-            } else {
-               let running = false;
+         if (~rival.isResting()) {
+            if (rivalTouchesPlayer(rival)) {
+               if (powerTimer > 0) {
+                  let score = score + 200;
+                  do rival.resetHome();
+                  do player.draw();
+                  do drawHud();
+               } else {
+                  let running = false;
+               }
             }
          }
       }

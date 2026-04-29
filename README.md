@@ -43,7 +43,7 @@ El objetivo es recorrer el laberinto y recoger todos los objetos sin ser atrapad
 - Conos de entrenamiento: dan 10 puntos.
 - Trofeos: dan 50 puntos.
 - Balones: dan 100 puntos y activan un poder temporal.
-- Si tienes el poder del balon activo, el jugador se ve mas grande, titila y puedes tocar a un rival para derrotarlo y mandarlo de vuelta al centro.
+- Si tienes el poder del balon activo, el jugador se ve mas grande, titila y puedes tocar a un rival para derrotarlo. El rival reaparece en el centro, queda en reposo unos 5 segundos y luego vuelve a perseguirte.
 - Si un rival te toca sin tener poder activo, termina la partida.
 - Ganas cuando recoges todos los objetos del tablero.
 - Los rivales se liberan por progreso: el primero sale al iniciar, el segundo al 25%, el tercero al 50%, el cuarto al 75% y el quinto al 100%.
@@ -52,13 +52,13 @@ El objetivo es recorrer el laberinto y recoger todos los objetos sin ser atrapad
 
 `Main.jack` es el punto de entrada. Crea el objeto `Game`, ejecuta el juego y luego libera memoria.
 
-`Game.jack` controla el ciclo principal del juego. Lee el teclado con `Keyboard.keyPressed()`, actualiza el puntaje, activa el poder del balon, libera rivales segun el porcentaje del mapa completado, revisa colisiones y determina si el jugador gana, pierde o reinicia con la tecla `R`.
+`Game.jack` controla el ciclo principal del juego. Lee el teclado con `Keyboard.keyPressed()`, actualiza el puntaje, activa el poder del balon, libera rivales segun el porcentaje del mapa completado, revisa colisiones y determina si el jugador gana, pierde o reinicia con la tecla `R`. Las colisiones ignoran temporalmente a los rivales que estan en reposo despues de ser derrotados.
 
 `Board.jack` guarda la estructura del laberinto. Tambien dibuja el mapa, los conos, los trofeos y los balones usando `Screen.drawRectangle`. El fondo del tablero se dibuja en negro y las paredes son bloques blancos para que el laberinto se vea mas claro en blanco y negro.
 
 `Player.jack` representa al futbolista principal. Tiene su propia posicion, metodo de movimiento y metodo de dibujo. Cuando el poder del balon esta activo, cambia a un sprite mas grande y alterna entre dos dibujos para simular titileo.
 
-`Rival.jack` representa a cada futbolista rival. Cada rival recuerda su posicion inicial y puede estar activo o esperando dentro de la jaula. Cuando `Game.jack` lo libera, abandona la jaula por la puerta central y despues se mueve de forma mas lineal: conserva direccion por varios pasos, recalcula hacia el jugador cada cierto tiempo y gira cuando encuentra una pared. Cuando el jugador tiene el poder del balon y toca a un rival, el rival vuelve a su posicion inicial.
+`Rival.jack` representa a cada futbolista rival. Cada rival recuerda su posicion inicial y puede estar activo o esperando dentro de la jaula. Cuando `Game.jack` lo libera, abandona la jaula por la puerta central y despues se mueve de forma mas lineal: conserva direccion por varios pasos, recalcula hacia el jugador cada cierto tiempo y gira cuando encuentra una pared. Cuando el jugador tiene el poder del balon y toca a un rival, el rival reaparece en el centro, se dibuja en modo reposo durante unos 5 segundos y despues vuelve a salir para perseguir al jugador.
 
 ## Nota sobre colores
 
