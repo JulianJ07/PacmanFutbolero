@@ -1,28 +1,31 @@
 class Rival {
+   static Array pathDistance;
+   static Array pathQueue;
+   static boolean pathReady;
+
    field Board board;
    field int row;
    field int col;
-   field int direction;
    field boolean active;
    field boolean leavingCage;
    field int releaseDelay;
    field int straightSteps;
-   field int blockedRow;
-   field int blockedCol;
-   field int blockedHits;
 
-   constructor Rival new(Board gameBoard, int startRow, int startCol, int startDirection) {
+   constructor Rival new(Board gameBoard, int startRow, int startCol) {
       let board = gameBoard;
       let row = startRow;
       let col = startCol;
-      let direction = startDirection;
       let active = false;
       let leavingCage = true;
       let releaseDelay = 0;
       let straightSteps = 0;
-      let blockedRow = -1;
-      let blockedCol = -1;
-      let blockedHits = 0;
+
+      if (~pathReady) {
+         let pathDistance = Array.new(651);
+         let pathQueue = Array.new(651);
+         let pathReady = true;
+      }
+
       return this;
    }
 
@@ -45,7 +48,7 @@ class Rival {
    method void release() {
       if (~active) {
          let active = true;
-         let leavingCage = false;
+         let leavingCage = true;
          let releaseDelay = 0;
       }
       return;
@@ -121,25 +124,7 @@ class Rival {
 
       let moved = false;
 
-      if (blockedHits > 3) {
-         let moved = tryEscapeMove();
-      }
-
-      if ((targetCol > col) & (~moved)) {
-         let moved = tryChasing(row, col + 1, 0);
-      }
-
-      if ((targetCol < col) & (~moved)) {
-         let moved = tryChasing(row, col - 1, 2);
-      }
-
-      if ((targetRow > row) & (~moved)) {
-         let moved = tryChasing(row + 1, col, 1);
-      }
-
-      if ((targetRow < row) & (~moved)) {
-         let moved = tryChasing(row - 1, col, 3);
-      }
+      let moved = moveByBestPath(targetRow, targetCol);
 
       if (~moved) {
          let moved = tryMove(row, col + 1);
@@ -161,72 +146,128 @@ class Rival {
       return;
    }
 
-   method boolean tryChasing(int nextRow, int nextCol, int nextDirection) {
-      if (board.canEnter(nextRow, nextCol)) {
-         let direction = nextDirection;
-         let blockedHits = 0;
-         return tryMove(nextRow, nextCol);
+   method boolean moveByBestPath(int targetRow, int targetCol) {
+      var int i;
+      var int head;
+      var int tail;
+      var int current;
+      var int currentRow;
+      var int currentCol;
+      var int currentDistance;
+
+      if (~board.canEnter(targetRow, targetCol)) {
+         return false;
       }
 
-      do rememberBlockedCell(nextRow, nextCol, nextDirection);
+      let i = 0;
+      while (i < 651) {
+         let pathDistance[i] = -1;
+         let i = i + 1;
+      }
+
+      let current = indexOf(targetRow, targetCol);
+      let pathDistance[current] = 0;
+      let pathQueue[0] = current;
+      let head = 0;
+      let tail = 1;
+
+      while (head < tail) {
+         let current = pathQueue[head];
+         let head = head + 1;
+         let currentRow = rowOfIndex(current);
+         let currentCol = colOfIndex(current);
+         let currentDistance = pathDistance[current];
+
+         let tail = addPathCell(currentRow, currentCol + 1, currentDistance + 1, tail);
+         let tail = addPathCell(currentRow + 1, currentCol, currentDistance + 1, tail);
+         let tail = addPathCell(currentRow, currentCol - 1, currentDistance + 1, tail);
+         let tail = addPathCell(currentRow - 1, currentCol, currentDistance + 1, tail);
+      }
+
+      return followBestNeighbor();
+   }
+
+   method int addPathCell(int nextRow, int nextCol, int nextDistance, int tail) {
+      var int nextIndex;
+
+      if (board.canEnter(nextRow, nextCol)) {
+         let nextIndex = indexOf(nextRow, nextCol);
+         if (pathDistance[nextIndex] = -1) {
+            let pathDistance[nextIndex] = nextDistance;
+            let pathQueue[tail] = nextIndex;
+            let tail = tail + 1;
+         }
+      }
+
+      return tail;
+   }
+
+   method boolean followBestNeighbor() {
+      var int bestRow;
+      var int bestCol;
+      var int bestDistance;
+      var int currentDistance;
+
+      let bestRow = row;
+      let bestCol = col;
+      let bestDistance = 30000;
+
+      let currentDistance = neighborDistance(row, col + 1);
+      if ((currentDistance > -1) & (currentDistance < bestDistance)) {
+         let bestDistance = currentDistance;
+         let bestRow = row;
+         let bestCol = col + 1;
+      }
+
+      let currentDistance = neighborDistance(row + 1, col);
+      if ((currentDistance > -1) & (currentDistance < bestDistance)) {
+         let bestDistance = currentDistance;
+         let bestRow = row + 1;
+         let bestCol = col;
+      }
+
+      let currentDistance = neighborDistance(row, col - 1);
+      if ((currentDistance > -1) & (currentDistance < bestDistance)) {
+         let bestDistance = currentDistance;
+         let bestRow = row;
+         let bestCol = col - 1;
+      }
+
+      let currentDistance = neighborDistance(row - 1, col);
+      if ((currentDistance > -1) & (currentDistance < bestDistance)) {
+         let bestDistance = currentDistance;
+         let bestRow = row - 1;
+         let bestCol = col;
+      }
+
+      if (bestDistance < 30000) {
+         return tryMove(bestRow, bestCol);
+      }
+
       return false;
    }
 
-   method void rememberBlockedCell(int nextRow, int nextCol, int nextDirection) {
-      if ((blockedRow = nextRow) & (blockedCol = nextCol)) {
-         let blockedHits = blockedHits + 1;
-      } else {
-         let blockedRow = nextRow;
-         let blockedCol = nextCol;
-         let blockedHits = 1;
+   method int neighborDistance(int testRow, int testCol) {
+      if (board.canEnter(testRow, testCol)) {
+         return pathDistance[indexOf(testRow, testCol)];
       }
 
-      if (blockedHits > 3) {
-         let direction = nextDirection + 1;
-         if (direction > 3) {
-            let direction = 0;
-         }
-      }
-
-      return;
+      return -1;
    }
 
-   method boolean tryEscapeMove() {
-      var int tries;
-      var boolean moved;
+   method int indexOf(int targetRow, int targetCol) {
+      return (targetRow * 31) + targetCol;
+   }
 
-      let tries = 0;
-      let moved = false;
+   method int rowOfIndex(int index) {
+      return index / 31;
+   }
 
-      while ((tries < 4) & (~moved)) {
-         if (direction = 0) {
-            let moved = tryMove(row, col + 1);
-         }
-         if ((direction = 1) & (~moved)) {
-            let moved = tryMove(row + 1, col);
-         }
-         if ((direction = 2) & (~moved)) {
-            let moved = tryMove(row, col - 1);
-         }
-         if ((direction = 3) & (~moved)) {
-            let moved = tryMove(row - 1, col);
-         }
+   method int colOfIndex(int index) {
+      var int targetRow;
 
-         if (~moved) {
-            let direction = direction + 1;
-            if (direction > 3) {
-               let direction = 0;
-            }
-         }
-
-         let tries = tries + 1;
-      }
-
-      if (moved) {
-         let blockedHits = 0;
-      }
-
-      return moved;
+      let targetRow = index / 31;
+      return index - (targetRow * 31);
    }
 
    method boolean tryMove(int nextRow, int nextCol) {
@@ -248,7 +289,6 @@ class Rival {
       let leavingCage = true;
       let releaseDelay = 90;
       let straightSteps = 0;
-      let blockedHits = 0;
       let active = true;
       do board.drawCell(row, col);
       do draw();
