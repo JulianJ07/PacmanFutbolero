@@ -10,6 +10,7 @@ class Rival {
    field boolean leavingCage;
    field int releaseDelay;
    field int straightSteps;
+   field boolean slowStep;
 
    constructor Rival new(Board gameBoard, int startRow, int startCol) {
       let board = gameBoard;
@@ -19,6 +20,7 @@ class Rival {
       let leavingCage = true;
       let releaseDelay = 0;
       let straightSteps = 0;
+      let slowStep = false;
 
       if (~pathReady) {
          let pathDistance = Array.new(651);
@@ -107,8 +109,8 @@ class Rival {
          let releaseDelay = releaseDelay - 1;
          if (releaseDelay = 0) {
             do board.drawCell(row, col);
+            do draw();
          }
-         do draw();
          return;
       }
 
@@ -118,10 +120,17 @@ class Rival {
       }
 
       let straightSteps = straightSteps + 1;
-      if (straightSteps < 2) {
-         return;
+      if (slowStep) {
+         if (straightSteps < 3) {
+            return;
+         }
+      } else {
+         if (straightSteps < 2) {
+            return;
+         }
       }
       let straightSteps = 0;
+      let slowStep = ~slowStep;
 
       let moved = false;
 
@@ -376,6 +385,7 @@ class Rival {
       let leavingCage = true;
       let releaseDelay = 90;
       let straightSteps = 0;
+      let slowStep = false;
       let active = true;
       do board.drawCell(row, col);
       do draw();

@@ -1,5 +1,5 @@
 function Rival.new 0
-push constant 7
+push constant 8
 call Memory.alloc 1
 pop pointer 0
 push argument 0
@@ -17,6 +17,8 @@ push constant 0
 pop this 5
 push constant 0
 pop this 6
+push constant 0
+pop this 7
 push static 2
 not
 if-goto IF_TRUE0
@@ -219,10 +221,10 @@ push this 1
 push this 2
 call Board.drawCell 3
 pop temp 0
-label IF_FALSE2
 push pointer 0
 call Rival.draw 1
 pop temp 0
+label IF_FALSE2
 push constant 0
 return
 label IF_FALSE1
@@ -240,17 +242,36 @@ push this 6
 push constant 1
 add
 pop this 6
-push this 6
-push constant 2
-lt
+push this 7
 if-goto IF_TRUE4
 goto IF_FALSE4
 label IF_TRUE4
+push this 6
+push constant 3
+lt
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
 push constant 0
 return
+label IF_FALSE5
+goto IF_END4
 label IF_FALSE4
+push this 6
+push constant 2
+lt
+if-goto IF_TRUE6
+goto IF_FALSE6
+label IF_TRUE6
+push constant 0
+return
+label IF_FALSE6
+label IF_END4
 push constant 0
 pop this 6
+push this 7
+not
+pop this 7
 push constant 0
 pop local 0
 push pointer 0
@@ -264,46 +285,14 @@ not
 push argument 3
 not
 and
-if-goto IF_TRUE5
-goto IF_FALSE5
-label IF_TRUE5
-push pointer 0
-push this 1
-push this 2
-push constant 1
-add
-call Rival.tryMove 3
-pop local 0
-label IF_FALSE5
-push local 0
-not
-push argument 3
-not
-and
-if-goto IF_TRUE6
-goto IF_FALSE6
-label IF_TRUE6
-push pointer 0
-push this 1
-push this 2
-push constant 1
-sub
-call Rival.tryMove 3
-pop local 0
-label IF_FALSE6
-push local 0
-not
-push argument 3
-not
-and
 if-goto IF_TRUE7
 goto IF_FALSE7
 label IF_TRUE7
 push pointer 0
 push this 1
+push this 2
 push constant 1
 add
-push this 2
 call Rival.tryMove 3
 pop local 0
 label IF_FALSE7
@@ -317,21 +306,53 @@ goto IF_FALSE8
 label IF_TRUE8
 push pointer 0
 push this 1
+push this 2
 push constant 1
 sub
-push this 2
 call Rival.tryMove 3
 pop local 0
 label IF_FALSE8
 push local 0
 not
+push argument 3
+not
+and
 if-goto IF_TRUE9
 goto IF_FALSE9
 label IF_TRUE9
 push pointer 0
+push this 1
+push constant 1
+add
+push this 2
+call Rival.tryMove 3
+pop local 0
+label IF_FALSE9
+push local 0
+not
+push argument 3
+not
+and
+if-goto IF_TRUE10
+goto IF_FALSE10
+label IF_TRUE10
+push pointer 0
+push this 1
+push constant 1
+sub
+push this 2
+call Rival.tryMove 3
+pop local 0
+label IF_FALSE10
+push local 0
+not
+if-goto IF_TRUE11
+goto IF_FALSE11
+label IF_TRUE11
+push pointer 0
 call Rival.draw 1
 pop temp 0
-label IF_FALSE9
+label IF_FALSE11
 push constant 0
 return
 function Rival.moveByPath 8
@@ -1010,6 +1031,8 @@ push constant 90
 pop this 5
 push constant 0
 pop this 6
+push constant 0
+pop this 7
 push constant 0
 not
 pop this 3
