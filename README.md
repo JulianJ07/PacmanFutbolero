@@ -1,5 +1,10 @@
 # Pacman Futbolero en Jack
 
+## Hecho por
+
+- Julian Jimenez
+- Alejandro Cifuentes
+
 Juego tipo Pac-Man hecho en Jack para Nand2Tetris. El jugador controla un futbolista dentro de un laberinto, recoge conos de entrenamiento, trofeos y balones de poder mientras evita a los futbolistas rivales.
 
 ## Como ponerlo a funcionar
