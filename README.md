@@ -74,10 +74,6 @@ Para reducir el lag, el mapa de distancias no se recalcula por cada rival. Se ca
 
 La velocidad de los rivales tambien se controla dentro de `Rival.jack`: alternan entre esperar 2 y 3 ciclos antes de moverse. Esto deja la persecucion un poco mas lenta que antes, aproximadamente al 80% de la velocidad previa, sin hacer mas lento el movimiento del jugador.
 
-## Nota sobre colores
-
-La pantalla oficial de Nand2Tetris no soporta colores reales como rojo, azul o amarillo. La API `Screen` solo permite dibujar pixeles negros o blancos. Por eso los futbolistas rivales no pueden verse rojos de verdad dentro del VM Emulator oficial; en su lugar tienen un uniforme rayado para distinguirlos del jugador.
-
 ## Compilacion
 
 El proyecto ya incluye archivos `.vm`. Si modificas los `.jack`, vuelve a compilar la carpeta con este ejemplo:
