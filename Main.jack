@@ -1,0 +1,17 @@
+class Main {
+   function void main() {
+      var Game game;
+      var boolean keepPlaying;
+
+      let keepPlaying = true;
+
+      while (keepPlaying) {
+         let game = Game.new();
+         do game.run();
+         let keepPlaying = game.shouldRestart();
+         do game.dispose();
+      }
+
+      return;
+   }
+}

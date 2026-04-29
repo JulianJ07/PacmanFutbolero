@@ -1,0 +1,388 @@
+class Board {
+   field int rows;
+   field int cols;
+   field int cellSize;
+   field int originX;
+   field int originY;
+   field Array items;
+   field int remaining;
+   field int total;
+
+   constructor Board new() {
+      var int row;
+      var int col;
+      var int i;
+
+      let rows = 21;
+      let cols = 31;
+      let cellSize = 10;
+      let originX = 101;
+      let originY = 38;
+      let remaining = 0;
+      let total = 0;
+      let items = Array.new(rows * cols);
+
+      let i = 0;
+      while (i < (rows * cols)) {
+         let items[i] = 0;
+         let i = i + 1;
+      }
+
+      let row = 0;
+      while (row < rows) {
+         let col = 0;
+         while (col < cols) {
+            if (isWall(row, col)) {
+               do setItem(row, col, 0);
+            } else {
+               do setItem(row, col, 1);
+            }
+            let col = col + 1;
+         }
+         let row = row + 1;
+      }
+
+      let row = 9;
+      while (row < 12) {
+         let col = 13;
+         while (col < 18) {
+            do setItem(row, col, 0);
+            let col = col + 1;
+         }
+         let row = row + 1;
+      }
+
+      do setItem(15, 15, 0);
+      do setItem(8, 15, 0);
+      do setItem(1, 1, 3);
+      do setItem(1, 29, 3);
+      do setItem(19, 1, 3);
+      do setItem(19, 29, 3);
+      do setItem(1, 15, 2);
+      do setItem(19, 15, 2);
+      do setItem(10, 1, 2);
+      do setItem(10, 29, 2);
+      let total = remaining;
+
+      return this;
+   }
+
+   method int xOf(int col) {
+      return originX + (col * cellSize);
+   }
+
+   method int yOf(int row) {
+      return originY + (row * cellSize);
+   }
+
+   method int indexOf(int row, int col) {
+      return (row * cols) + col;
+   }
+
+   method void setItem(int row, int col, int kind) {
+      var int i;
+      var int oldKind;
+
+      let i = indexOf(row, col);
+      let oldKind = items[i];
+
+      if ((oldKind = 0) & (kind > 0)) {
+         let remaining = remaining + 1;
+      }
+      if ((oldKind > 0) & (kind = 0)) {
+         let remaining = remaining - 1;
+      }
+
+      let items[i] = kind;
+      return;
+   }
+
+   method int remainingItems() {
+      return remaining;
+   }
+
+   method int totalItems() {
+      return total;
+   }
+
+   method int collectedItems() {
+      return total - remaining;
+   }
+
+   method boolean canEnter(int row, int col) {
+      if (row < 0) {
+         return false;
+      }
+      if (col < 0) {
+         return false;
+      }
+      if (row > (rows - 1)) {
+         return false;
+      }
+      if (col > (cols - 1)) {
+         return false;
+      }
+      if (isWall(row, col)) {
+         return false;
+      }
+      return true;
+   }
+
+   method boolean isWall(int row, int col) {
+      if (row = 0) {
+         return true;
+      }
+      if (row = (rows - 1)) {
+         return true;
+      }
+      if (col = 0) {
+         return true;
+      }
+      if (col = (cols - 1)) {
+         return true;
+      }
+
+      if ((row = 2) & (col > 2) & (col < 7)) {
+         return true;
+      }
+      if ((row = 2) & (col > 9) & (col < 14)) {
+         return true;
+      }
+      if ((row = 2) & (col > 16) & (col < 21)) {
+         return true;
+      }
+      if ((row = 2) & (col > 23) & (col < 28)) {
+         return true;
+      }
+      if ((row = 4) & (col > 2) & (col < 7)) {
+         return true;
+      }
+      if ((row = 4) & (col > 9) & (col < 21)) {
+         return true;
+      }
+      if ((row = 4) & (col > 23) & (col < 28)) {
+         return true;
+      }
+      if ((row > 1) & (row < 5) & (col = 15)) {
+         return true;
+      }
+      if ((row = 6) & (col > 1) & (col < 7)) {
+         return true;
+      }
+      if ((row = 6) & (col > 9) & (col < 13)) {
+         return true;
+      }
+      if ((row = 6) & (col > 18) & (col < 22)) {
+         return true;
+      }
+      if ((row = 6) & (col > 23) & (col < 29)) {
+         return true;
+      }
+      if ((row = 8) & (col > 2) & (col < 8)) {
+         return true;
+      }
+      if ((row = 8) & (col > 22) & (col < 28)) {
+         return true;
+      }
+      if ((row = 10) & (col > 2) & (col < 7)) {
+         return true;
+      }
+      if ((row = 10) & (col > 23) & (col < 28)) {
+         return true;
+      }
+      if ((row > 10) & (row < 14) & (col = 4)) {
+         return true;
+      }
+      if ((row > 10) & (row < 14) & (col = 26)) {
+         return true;
+      }
+      if ((row = 14) & (col > 2) & (col < 8)) {
+         return true;
+      }
+      if ((row = 14) & (col > 10) & (col < 14)) {
+         return true;
+      }
+      if ((row = 14) & (col > 16) & (col < 20)) {
+         return true;
+      }
+      if ((row = 14) & (col > 22) & (col < 28)) {
+         return true;
+      }
+      if ((row > 14) & (row < 18) & (col = 8)) {
+         return true;
+      }
+      if ((row > 14) & (row < 18) & (col = 22)) {
+         return true;
+      }
+      if ((row = 16) & (col > 5) & (col < 14)) {
+         return true;
+      }
+      if ((row = 16) & (col > 16) & (col < 25)) {
+         return true;
+      }
+      if ((row = 18) & (col > 2) & (col < 11)) {
+         return true;
+      }
+      if ((row = 18) & (col > 12) & (col < 18)) {
+         return true;
+      }
+      if ((row = 18) & (col > 19) & (col < 28)) {
+         return true;
+      }
+
+      return false;
+   }
+
+   method int collectAt(int row, int col) {
+      var int i;
+      var int kind;
+
+      let i = indexOf(row, col);
+      let kind = items[i];
+
+      if (kind = 1) {
+         let items[i] = 0;
+         let remaining = remaining - 1;
+         return 10;
+      }
+      if (kind = 2) {
+         let items[i] = 0;
+         let remaining = remaining - 1;
+         return 50;
+      }
+      if (kind = 3) {
+         let items[i] = 0;
+         let remaining = remaining - 1;
+         return 100;
+      }
+
+      return 0;
+   }
+
+   method void drawAll() {
+      var int row;
+      var int col;
+
+      let row = 0;
+      while (row < rows) {
+         let col = 0;
+         while (col < cols) {
+            do drawCell(row, col);
+            let col = col + 1;
+         }
+         let row = row + 1;
+      }
+
+      return;
+   }
+
+   method void drawCell(int row, int col) {
+      var int x;
+      var int y;
+
+      let x = xOf(col);
+      let y = yOf(row);
+
+      if (isWall(row, col)) {
+         do drawWall(row, col);
+      } else {
+         do Screen.setColor(true);
+         do Screen.drawRectangle(x, y, (x + cellSize) - 1, (y + cellSize) - 1);
+         do drawItem(row, col);
+      }
+
+      return;
+   }
+
+   method void drawItem(int row, int col) {
+      var int kind;
+
+      let kind = items[indexOf(row, col)];
+
+      if (kind = 1) {
+         do drawCone(row, col);
+      }
+      if (kind = 2) {
+         do drawTrophy(row, col);
+      }
+      if (kind = 3) {
+         do drawBall(row, col);
+      }
+
+      return;
+   }
+
+   method void drawWall(int row, int col) {
+      var int x;
+      var int y;
+
+      let x = xOf(col);
+      let y = yOf(row);
+
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x, y, (x + cellSize) - 1, (y + cellSize) - 1);
+
+      return;
+   }
+
+   method void drawCone(int row, int col) {
+      var int x;
+      var int y;
+
+      let x = xOf(col);
+      let y = yOf(row);
+
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x + 4, y + 4, x + 5, y + 5);
+      do Screen.drawRectangle(x + 3, y + 6, x + 6, y + 6);
+      do Screen.setColor(true);
+      do Screen.drawRectangle(x + 4, y + 5, x + 5, y + 5);
+
+      return;
+   }
+
+   method void drawTrophy(int row, int col) {
+      var int x;
+      var int y;
+
+      let x = xOf(col);
+      let y = yOf(row);
+
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x + 3, y + 2, x + 6, y + 4);
+      do Screen.drawRectangle(x + 2, y + 3, x + 2, y + 5);
+      do Screen.drawRectangle(x + 7, y + 3, x + 7, y + 5);
+      do Screen.drawRectangle(x + 4, y + 5, x + 5, y + 6);
+      do Screen.drawRectangle(x + 3, y + 7, x + 6, y + 8);
+      do Screen.setColor(true);
+      do Screen.drawRectangle(x + 4, y + 3, x + 5, y + 3);
+
+      return;
+   }
+
+   method void drawBall(int row, int col) {
+      var int x;
+      var int y;
+
+      let x = xOf(col);
+      let y = yOf(row);
+
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x + 3, y + 1, x + 6, y + 1);
+      do Screen.drawRectangle(x + 2, y + 2, x + 7, y + 3);
+      do Screen.drawRectangle(x + 1, y + 4, x + 8, y + 6);
+      do Screen.drawRectangle(x + 2, y + 7, x + 7, y + 7);
+      do Screen.drawRectangle(x + 3, y + 8, x + 6, y + 8);
+      do Screen.setColor(true);
+      do Screen.drawRectangle(x + 4, y + 2, x + 5, y + 7);
+      do Screen.drawRectangle(x + 2, y + 4, x + 7, y + 5);
+
+      return;
+   }
+
+   method void dispose() {
+      do items.dispose();
+      do Memory.deAlloc(this);
+      return;
+   }
+}

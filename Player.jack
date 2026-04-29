@@ -1,0 +1,123 @@
+class Player {
+   field Board board;
+   field int row;
+   field int col;
+   field boolean powered;
+   field boolean blink;
+
+   constructor Player new(Board gameBoard, int startRow, int startCol) {
+      let board = gameBoard;
+      let row = startRow;
+      let col = startCol;
+      let powered = false;
+      let blink = false;
+      return this;
+   }
+
+   method int getRow() {
+      return row;
+   }
+
+   method int getCol() {
+      return col;
+   }
+
+   method void setPowered(boolean value) {
+      let powered = value;
+      return;
+   }
+
+   method void setBlink(boolean value) {
+      let blink = value;
+      return;
+   }
+
+   method void refresh() {
+      do board.drawCell(row, col);
+      do draw();
+      return;
+   }
+
+   method int move(int deltaRow, int deltaCol) {
+      var int nextRow;
+      var int nextCol;
+      var int gained;
+
+      let nextRow = row + deltaRow;
+      let nextCol = col + deltaCol;
+
+      if (board.canEnter(nextRow, nextCol)) {
+         do board.drawCell(row, col);
+         let row = nextRow;
+         let col = nextCol;
+         let gained = board.collectAt(row, col);
+         do draw();
+         return gained;
+      }
+
+      return 0;
+   }
+
+   method void draw() {
+      var int x;
+      var int y;
+
+      let x = board.xOf(col);
+      let y = board.yOf(row);
+
+      if (powered) {
+         if (blink) {
+            do drawPoweredBright(x, y);
+         } else {
+            do drawPoweredDim(x, y);
+         }
+         return;
+      }
+
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x + 4, y + 1, x + 5, y + 1);
+      do Screen.drawRectangle(x + 3, y + 2, x + 6, y + 3);
+      do Screen.drawRectangle(x + 2, y + 4, x + 7, y + 6);
+      do Screen.drawRectangle(x + 1, y + 5, x + 8, y + 5);
+      do Screen.drawRectangle(x + 3, y + 7, x + 4, y + 8);
+      do Screen.drawRectangle(x + 6, y + 7, x + 7, y + 8);
+      do Screen.drawRectangle(x + 8, y + 7, x + 9, y + 8);
+      do Screen.setColor(true);
+      do Screen.drawRectangle(x + 4, y + 3, x + 5, y + 3);
+      do Screen.drawRectangle(x + 4, y + 5, x + 5, y + 5);
+
+      return;
+   }
+
+   method void drawPoweredBright(int x, int y) {
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x + 3, y, x + 6, y);
+      do Screen.drawRectangle(x + 2, y + 1, x + 7, y + 2);
+      do Screen.drawRectangle(x + 1, y + 3, x + 8, y + 7);
+      do Screen.drawRectangle(x, y + 5, x + 9, y + 5);
+      do Screen.drawRectangle(x + 2, y + 8, x + 3, y + 9);
+      do Screen.drawRectangle(x + 6, y + 8, x + 7, y + 9);
+      do Screen.drawRectangle(x + 8, y + 8, x + 9, y + 9);
+      do Screen.setColor(true);
+      do Screen.drawRectangle(x + 4, y + 2, x + 5, y + 2);
+      do Screen.drawRectangle(x + 3, y + 5, x + 6, y + 5);
+      return;
+   }
+
+   method void drawPoweredDim(int x, int y) {
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x + 2, y + 1, x + 7, y + 1);
+      do Screen.drawRectangle(x + 1, y + 2, x + 8, y + 7);
+      do Screen.drawRectangle(x + 2, y + 8, x + 3, y + 8);
+      do Screen.drawRectangle(x + 6, y + 8, x + 7, y + 8);
+      do Screen.setColor(true);
+      do Screen.drawRectangle(x + 3, y + 3, x + 6, y + 4);
+      do Screen.drawRectangle(x + 4, y + 6, x + 5, y + 6);
+      return;
+   }
+
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+}

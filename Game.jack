@@ -1,0 +1,447 @@
+class Game {
+   field Board board;
+   field Player player;
+   field Rival rivalA;
+   field Rival rivalB;
+   field Rival rivalC;
+   field Rival rivalD;
+   field Rival rivalE;
+   field int score;
+   field int tick;
+   field int hudTick;
+   field int powerTimer;
+   field boolean blinkState;
+   field boolean running;
+   field boolean won;
+   field boolean restartRequested;
+
+   constructor Game new() {
+      let board = Board.new();
+      let player = Player.new(board, 15, 15);
+      let rivalA = Rival.new(board, 9, 14, 0);
+      let rivalB = Rival.new(board, 9, 16, 1);
+      let rivalC = Rival.new(board, 10, 14, 2);
+      let rivalD = Rival.new(board, 10, 16, 3);
+      let rivalE = Rival.new(board, 11, 14, 0);
+      let score = 0;
+      let tick = 0;
+      let hudTick = 0;
+      let powerTimer = 0;
+      let blinkState = false;
+      let running = true;
+      let won = false;
+      let restartRequested = false;
+      do rivalA.release();
+      return this;
+   }
+
+   method void run() {
+      var int key;
+      var int gained;
+      var boolean doneWaiting;
+
+      do Screen.clearScreen();
+      do board.drawAll();
+
+      let score = score + board.collectAt(player.getRow(), player.getCol());
+      do player.draw();
+      do updateRivalRelease();
+      do drawActiveRivals();
+      do drawHud();
+
+      while (running) {
+         let key = Keyboard.keyPressed();
+         let gained = 0;
+
+         if (key = 140) {
+            let running = false;
+         }
+         if (isRestartKey(key)) {
+            let restartRequested = true;
+            let running = false;
+         }
+
+         if (key = 130) {
+            let gained = player.move(0, -1);
+         }
+         if (key = 131) {
+            let gained = player.move(-1, 0);
+         }
+         if (key = 132) {
+            let gained = player.move(0, 1);
+         }
+         if (key = 133) {
+            let gained = player.move(1, 0);
+         }
+
+         if (gained > 0) {
+            let score = score + gained;
+            if (gained = 100) {
+               let powerTimer = 80;
+               let hudTick = 0;
+               let blinkState = true;
+               do player.setPowered(true);
+               do player.setBlink(blinkState);
+               do player.refresh();
+            }
+            do updateRivalRelease();
+            do drawActiveRivals();
+            do drawHud();
+         }
+
+         do handleCollisions();
+
+         if (board.remainingItems() = 0) {
+            do updateRivalRelease();
+            do drawActiveRivals();
+            let won = true;
+            let running = false;
+         }
+
+         let tick = tick + 1;
+         if (tick > 0) {
+            let tick = 0;
+            do rivalA.moveStep(player.getRow(), player.getCol());
+            do rivalB.moveStep(player.getRow(), player.getCol());
+            do rivalC.moveStep(player.getRow(), player.getCol());
+            do rivalD.moveStep(player.getRow(), player.getCol());
+            do rivalE.moveStep(player.getRow(), player.getCol());
+         }
+
+         do handleCollisions();
+
+         if (powerTimer > 0) {
+            let powerTimer = powerTimer - 1;
+            let blinkState = ~blinkState;
+            do player.setBlink(blinkState);
+            if (powerTimer = 0) {
+               do player.setPowered(false);
+            }
+            do player.refresh();
+            do handleCollisions();
+            let hudTick = hudTick + 1;
+            if ((hudTick > 4) | (powerTimer = 0)) {
+               let hudTick = 0;
+               do drawHud();
+            }
+         }
+
+         do Sys.wait(55);
+      }
+
+      if (restartRequested) {
+         return;
+      }
+
+      do drawGameOver();
+      let doneWaiting = false;
+      while (~doneWaiting) {
+         let key = Keyboard.keyPressed();
+         if (key = 140) {
+            let doneWaiting = true;
+         }
+         if (isRestartKey(key)) {
+            let restartRequested = true;
+            let doneWaiting = true;
+         }
+         do Sys.wait(100);
+      }
+
+      return;
+   }
+
+   method void drawActiveRivals() {
+      if (rivalA.isActive()) {
+         do rivalA.draw();
+      }
+      if (rivalB.isActive()) {
+         do rivalB.draw();
+      }
+      if (rivalC.isActive()) {
+         do rivalC.draw();
+      }
+      if (rivalD.isActive()) {
+         do rivalD.draw();
+      }
+      if (rivalE.isActive()) {
+         do rivalE.draw();
+      }
+      return;
+   }
+
+   method boolean shouldRestart() {
+      return restartRequested;
+   }
+
+   method boolean isRestartKey(int key) {
+      if (key = 82) {
+         return true;
+      }
+      if (key = 114) {
+         return true;
+      }
+      return false;
+   }
+
+   method void updateRivalRelease() {
+      var int done;
+      var int total;
+
+      let done = board.collectedItems();
+      let total = board.totalItems();
+
+      if (~((done * 4) < total)) {
+         do rivalB.release();
+      }
+      if (~((done * 2) < total)) {
+         do rivalC.release();
+      }
+      if (~((done * 4) < (total * 3))) {
+         do rivalD.release();
+      }
+      if (~(done < total)) {
+         do rivalE.release();
+      }
+
+      return;
+   }
+
+   method void handleCollisions() {
+      do checkRivalCollision(rivalA);
+      do checkRivalCollision(rivalB);
+      do checkRivalCollision(rivalC);
+      do checkRivalCollision(rivalD);
+      do checkRivalCollision(rivalE);
+      return;
+   }
+
+   method void checkRivalCollision(Rival rival) {
+      if (rival.isActive()) {
+         if (rivalTouchesPlayer(rival)) {
+            if (powerTimer > 0) {
+               let score = score + 200;
+               do rival.resetHome();
+               do player.draw();
+               do drawHud();
+            } else {
+               let running = false;
+            }
+         }
+      }
+
+      return;
+   }
+
+   method boolean rivalTouchesPlayer(Rival rival) {
+      if ((player.getRow() = rival.getRow()) & (player.getCol() = rival.getCol())) {
+         return true;
+      }
+
+      if (powerTimer > 0) {
+         if (player.getRow() = rival.getRow()) {
+            if (player.getCol() = (rival.getCol() + 1)) {
+               return true;
+            }
+            if (player.getCol() = (rival.getCol() - 1)) {
+               return true;
+            }
+         }
+         if (player.getCol() = rival.getCol()) {
+            if (player.getRow() = (rival.getRow() + 1)) {
+               return true;
+            }
+            if (player.getRow() = (rival.getRow() - 1)) {
+               return true;
+            }
+         }
+      }
+
+      return false;
+   }
+
+   method boolean hasCollision() {
+      if ((player.getRow() = rivalA.getRow()) & (player.getCol() = rivalA.getCol())) {
+         return true;
+      }
+      if ((player.getRow() = rivalB.getRow()) & (player.getCol() = rivalB.getCol())) {
+         return true;
+      }
+      if ((player.getRow() = rivalC.getRow()) & (player.getCol() = rivalC.getCol())) {
+         return true;
+      }
+      if ((player.getRow() = rivalD.getRow()) & (player.getCol() = rivalD.getCol())) {
+         return true;
+      }
+      if ((player.getRow() = rivalE.getRow()) & (player.getCol() = rivalE.getCol())) {
+         return true;
+      }
+      return false;
+   }
+
+   method void drawHud() {
+      do Screen.setColor(false);
+      do Screen.drawRectangle(0, 0, 511, 31);
+      do Screen.setColor(true);
+      do Output.moveCursor(0, 0);
+      do printPuntajeLabel();
+      do Output.printInt(score);
+      do printBalonLabel();
+      do Output.printInt(powerTimer);
+      do printRestanLabel();
+      do Output.printInt(board.remainingItems());
+      do printEscSalirLabel();
+      return;
+   }
+
+   method void drawGameOver() {
+      do Screen.setColor(false);
+      do Screen.drawRectangle(0, 0, 511, 31);
+      do Screen.setColor(true);
+      do Output.moveCursor(0, 0);
+      if (won) {
+         do printGanasteLabel();
+      } else {
+         do printFinLabel();
+      }
+      do Output.printInt(score);
+      do Output.moveCursor(1, 0);
+      do printPresionaEscLabel();
+      return;
+   }
+
+   method void printPuntajeLabel() {
+      do Output.printChar(80);
+      do Output.printChar(117);
+      do Output.printChar(110);
+      do Output.printChar(116);
+      do Output.printChar(97);
+      do Output.printChar(106);
+      do Output.printChar(101);
+      do Output.printChar(58);
+      do Output.printChar(32);
+      return;
+   }
+
+   method void printBalonLabel() {
+      do Output.printChar(32);
+      do Output.printChar(32);
+      do Output.printChar(32);
+      do Output.printChar(66);
+      do Output.printChar(97);
+      do Output.printChar(108);
+      do Output.printChar(111);
+      do Output.printChar(110);
+      do Output.printChar(58);
+      do Output.printChar(32);
+      return;
+   }
+
+   method void printRestanLabel() {
+      do Output.printChar(32);
+      do Output.printChar(32);
+      do Output.printChar(32);
+      do Output.printChar(82);
+      do Output.printChar(101);
+      do Output.printChar(115);
+      do Output.printChar(116);
+      do Output.printChar(97);
+      do Output.printChar(110);
+      do Output.printChar(58);
+      do Output.printChar(32);
+      return;
+   }
+
+   method void printEscSalirLabel() {
+      do Output.printChar(32);
+      do Output.printChar(69);
+      do Output.printChar(83);
+      do Output.printChar(67);
+      do Output.printChar(32);
+      do Output.printChar(115);
+      do Output.printChar(97);
+      do Output.printChar(108);
+      do Output.printChar(105);
+      do Output.printChar(114);
+      do Output.printChar(32);
+      do Output.printChar(82);
+      do Output.printChar(32);
+      do Output.printChar(114);
+      do Output.printChar(101);
+      do Output.printChar(105);
+      do Output.printChar(110);
+      return;
+   }
+
+   method void printGanasteLabel() {
+      do Output.printChar(71);
+      do Output.printChar(97);
+      do Output.printChar(110);
+      do Output.printChar(97);
+      do Output.printChar(115);
+      do Output.printChar(116);
+      do Output.printChar(101);
+      do Output.printChar(33);
+      do Output.printChar(32);
+      do printPuntajeLabel();
+      return;
+   }
+
+   method void printFinLabel() {
+      do Output.printChar(70);
+      do Output.printChar(105);
+      do Output.printChar(110);
+      do Output.printChar(32);
+      do Output.printChar(100);
+      do Output.printChar(101);
+      do Output.printChar(108);
+      do Output.printChar(32);
+      do Output.printChar(106);
+      do Output.printChar(117);
+      do Output.printChar(101);
+      do Output.printChar(103);
+      do Output.printChar(111);
+      do Output.printChar(46);
+      do Output.printChar(32);
+      do printPuntajeLabel();
+      return;
+   }
+
+   method void printPresionaEscLabel() {
+      do Output.printChar(69);
+      do Output.printChar(83);
+      do Output.printChar(67);
+      do Output.printChar(32);
+      do Output.printChar(115);
+      do Output.printChar(97);
+      do Output.printChar(108);
+      do Output.printChar(105);
+      do Output.printChar(114);
+      do Output.printChar(32);
+      do Output.printChar(45);
+      do Output.printChar(32);
+      do Output.printChar(82);
+      do Output.printChar(32);
+      do Output.printChar(114);
+      do Output.printChar(101);
+      do Output.printChar(105);
+      do Output.printChar(110);
+      do Output.printChar(105);
+      do Output.printChar(99);
+      do Output.printChar(105);
+      do Output.printChar(97);
+      do Output.printChar(114);
+      return;
+   }
+
+   method void dispose() {
+      do player.dispose();
+      do rivalA.dispose();
+      do rivalB.dispose();
+      do rivalC.dispose();
+      do rivalD.dispose();
+      do rivalE.dispose();
+      do board.dispose();
+      do Memory.deAlloc(this);
+      return;
+   }
+}

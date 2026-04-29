@@ -1,0 +1,240 @@
+class Rival {
+   field Board board;
+   field int row;
+   field int col;
+   field int homeRow;
+   field int homeCol;
+   field int direction;
+   field int seed;
+   field boolean active;
+   field boolean leavingCage;
+   field int releaseDelay;
+   field int straightSteps;
+
+   constructor Rival new(Board gameBoard, int startRow, int startCol, int startDirection) {
+      let board = gameBoard;
+      let row = startRow;
+      let col = startCol;
+      let homeRow = startRow;
+      let homeCol = startCol;
+      let direction = startDirection;
+      let seed = (startRow * 17) + (startCol * 7) + startDirection;
+      let active = false;
+      let leavingCage = true;
+      let releaseDelay = 0;
+      let straightSteps = 0;
+      return this;
+   }
+
+   method int getRow() {
+      return row;
+   }
+
+   method int getCol() {
+      return col;
+   }
+
+   method boolean isActive() {
+      return active;
+   }
+
+   method void release() {
+      if (~active) {
+         let active = true;
+         let leavingCage = false;
+         let releaseDelay = 0;
+      }
+      return;
+   }
+
+   method void randomizeDirection() {
+      let seed = seed + 31 + (row * 3) + (col * 5) + (direction * 11);
+
+      while (seed > 36) {
+         let seed = seed - 37;
+      }
+
+      let direction = seed;
+      while (direction > 3) {
+         let direction = direction - 4;
+      }
+
+      return;
+   }
+
+   method void chooseDirectionToward(int targetRow, int targetCol) {
+      if (targetCol > col) {
+         let direction = 0;
+         return;
+      }
+      if (targetCol < col) {
+         let direction = 2;
+         return;
+      }
+      if (targetRow > row) {
+         let direction = 1;
+         return;
+      }
+      if (targetRow < row) {
+         let direction = 3;
+         return;
+      }
+      do randomizeDirection();
+      return;
+   }
+
+   method boolean isInCage() {
+      if ((row > 7) & (row < 12) & (col > 12) & (col < 18)) {
+         return true;
+      }
+      if ((row = 8) & (col = 15)) {
+         return true;
+      }
+      return false;
+   }
+
+   method void leaveCage() {
+      var int nextRow;
+      var int nextCol;
+
+      let nextRow = row;
+      let nextCol = col;
+
+      if (col < 15) {
+         let nextCol = col + 1;
+      } else {
+         if (col > 15) {
+            let nextCol = col - 1;
+         } else {
+            let nextRow = row - 1;
+         }
+      }
+
+      if (board.canEnter(nextRow, nextCol)) {
+         do board.drawCell(row, col);
+         let row = nextRow;
+         let col = nextCol;
+         do draw();
+      }
+
+      if (~isInCage()) {
+         let leavingCage = false;
+      }
+
+      return;
+   }
+
+   method void moveStep(int targetRow, int targetCol) {
+      var boolean moved;
+
+      if (~active) {
+         return;
+      }
+
+      if (releaseDelay > 0) {
+         let releaseDelay = releaseDelay - 1;
+         do draw();
+         return;
+      }
+
+      if (leavingCage) {
+         do leaveCage();
+         return;
+      }
+
+      let straightSteps = straightSteps + 1;
+      if (straightSteps < 3) {
+         return;
+      }
+      let straightSteps = 0;
+
+      let moved = false;
+
+      if (targetCol > col) {
+         let moved = tryMove(row, col + 1);
+      }
+
+      if ((targetCol < col) & (~moved)) {
+         let moved = tryMove(row, col - 1);
+      }
+
+      if ((targetRow > row) & (~moved)) {
+         let moved = tryMove(row + 1, col);
+      }
+
+      if ((targetRow < row) & (~moved)) {
+         let moved = tryMove(row - 1, col);
+      }
+
+      if (~moved) {
+         let moved = tryMove(row, col + 1);
+      }
+      if (~moved) {
+         let moved = tryMove(row, col - 1);
+      }
+      if (~moved) {
+         let moved = tryMove(row + 1, col);
+      }
+      if (~moved) {
+         let moved = tryMove(row - 1, col);
+      }
+
+      if (~moved) {
+         do draw();
+      }
+
+      return;
+   }
+
+   method boolean tryMove(int nextRow, int nextCol) {
+      if (board.canEnter(nextRow, nextCol)) {
+         do board.drawCell(row, col);
+         let row = nextRow;
+         let col = nextCol;
+         do draw();
+         return true;
+      }
+
+      return false;
+   }
+
+   method void resetHome() {
+      do board.drawCell(row, col);
+      let row = homeRow;
+      let col = homeCol;
+      let leavingCage = false;
+      let releaseDelay = 8;
+      let straightSteps = 0;
+      let active = true;
+      do draw();
+      return;
+   }
+
+   method void draw() {
+      var int x;
+      var int y;
+
+      let x = board.xOf(col);
+      let y = board.yOf(row);
+
+      do Screen.setColor(false);
+      do Screen.drawRectangle(x + 3, y + 1, x + 6, y + 2);
+      do Screen.drawRectangle(x + 2, y + 3, x + 7, y + 7);
+      do Screen.drawRectangle(x + 1, y + 4, x + 8, y + 5);
+      do Screen.drawRectangle(x + 2, y + 8, x + 3, y + 8);
+      do Screen.drawRectangle(x + 6, y + 8, x + 7, y + 8);
+      do Screen.setColor(true);
+      do Screen.drawRectangle(x + 3, y + 3, x + 3, y + 7);
+      do Screen.drawRectangle(x + 6, y + 3, x + 6, y + 7);
+      do Screen.drawRectangle(x + 4, y + 6, x + 5, y + 6);
+      do Screen.drawRectangle(x + 4, y + 2, x + 4, y + 2);
+      do Screen.drawRectangle(x + 6, y + 2, x + 6, y + 2);
+
+      return;
+   }
+
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+}
