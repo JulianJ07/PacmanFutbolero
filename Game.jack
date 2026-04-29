@@ -101,6 +101,7 @@ class Game {
          let tick = tick + 1;
          if (tick > 0) {
             let tick = 0;
+            do Rival.beginPathFrame();
             do rivalA.moveStep(player.getRow(), player.getCol(), powerTimer > 0);
             do rivalB.moveStep(player.getRow(), player.getCol(), powerTimer > 0);
             do rivalC.moveStep(player.getRow(), player.getCol(), powerTimer > 0);

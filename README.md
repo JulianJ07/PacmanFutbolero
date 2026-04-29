@@ -60,6 +60,20 @@ El objetivo es recorrer el laberinto y recoger todos los objetos sin ser atrapad
 
 `Rival.jack` representa a cada futbolista rival. Cada rival puede estar activo o esperando dentro de la jaula. Cuando `Game.jack` lo libera, abandona la jaula por la puerta central y despues busca al jugador calculando el camino mas corto por las celdas transitables del laberinto, evitando quedarse chocando contra paredes. Si el jugador tiene el poder del balon, usa el mismo mapa de distancias para elegir una celda mas lejana y alejarse. Cuando el jugador toca a un rival con el poder activo, el rival reaparece en el centro, se dibuja en modo reposo durante unos 5 segundos y despues vuelve a salir para perseguir al jugador.
 
+## Algoritmo de persecucion de los rivales
+
+El tablero se maneja como una cuadricula de 21 filas por 31 columnas. Cada casilla se convierte en un numero con la formula `fila * 31 + columna`, lo que permite guardar informacion del camino en arreglos simples de Jack.
+
+Para perseguir al jugador, `Game.jack` llama a `Rival.beginPathFrame()` antes de mover los rivales. Cuando el primer rival necesita moverse, `Rival.jack` construye un mapa de distancias desde la posicion actual del jugador usando una busqueda por amplitud, tambien conocida como BFS. Esta busqueda empieza en la celda del jugador, revisa las celdas vecinas que no son paredes con `board.canEnter()`, y guarda en `pathDistance` cuantos pasos cuesta llegar a cada celda transitable.
+
+Despues de construir ese mapa, cada rival solo mira sus cuatro vecinos: derecha, abajo, izquierda y arriba. Si el jugador no tiene poder activo, el rival escoge el vecino con la distancia mas pequena. Eso significa que siempre avanza por el camino mas corto disponible y no intenta atravesar paredes.
+
+Cuando el jugador recoge un balon y el poder esta activo, se usa el mismo mapa de distancias pero con la decision al reves: el rival escoge el vecino con la distancia mas grande. Asi intenta alejarse del jugador respetando los pasillos del laberinto.
+
+Para reducir el lag, el mapa de distancias no se recalcula por cada rival. Se calcula una sola vez por ciclo de movimiento y todos los rivales lo reutilizan. Ademas, el arreglo `pathDistance` no se limpia completo en cada ciclo; solo se limpian las celdas visitadas en la busqueda anterior. Esto es importante en la VM de Nand2Tetris porque el rendimiento es limitado y al avanzar la partida hay mas rivales activos.
+
+La velocidad de los rivales tambien se controla dentro de `Rival.jack`: alternan entre esperar 2 y 3 ciclos antes de moverse. Esto deja la persecucion un poco mas lenta que antes, aproximadamente al 80% de la velocidad previa, sin hacer mas lento el movimiento del jugador.
+
 ## Nota sobre colores
 
 La pantalla oficial de Nand2Tetris no soporta colores reales como rojo, azul o amarillo. La API `Screen` solo permite dibujar pixeles negros o blancos. Por eso los futbolistas rivales no pueden verse rojos de verdad dentro del VM Emulator oficial; en su lugar tienen un uniforme rayado para distinguirlos del jugador.

@@ -2,6 +2,8 @@ class Rival {
    static Array pathDistance;
    static Array pathQueue;
    static boolean pathReady;
+   static boolean pathBuilt;
+   static int pathTail;
 
    field Board board;
    field int row;
@@ -25,8 +27,10 @@ class Rival {
       if (~pathReady) {
          let pathDistance = Array.new(651);
          let pathQueue = Array.new(651);
-         do clearAllPathDistance();
+         do Rival.clearAllPathDistance();
          let pathReady = true;
+         let pathBuilt = false;
+         let pathTail = 0;
       }
 
       return this;
@@ -54,6 +58,57 @@ class Rival {
          let leavingCage = true;
          let releaseDelay = 0;
       }
+      return;
+   }
+
+   function void beginPathFrame() {
+      let pathBuilt = false;
+      return;
+   }
+
+   function void buildPathMap(Board gameBoard, int targetRow, int targetCol) {
+      var int head;
+      var int tail;
+      var int current;
+      var int currentRow;
+      var int currentCol;
+      var int currentDistance;
+
+      if (~pathReady) {
+         let pathDistance = Array.new(651);
+         let pathQueue = Array.new(651);
+         do Rival.clearAllPathDistance();
+         let pathReady = true;
+         let pathTail = 0;
+      }
+
+      do Rival.clearVisitedPath(pathTail);
+      let pathTail = 0;
+
+      if (~gameBoard.canEnter(targetRow, targetCol)) {
+         return;
+      }
+
+      let current = Rival.pathIndex(targetRow, targetCol);
+      let pathDistance[current] = 0;
+      let pathQueue[0] = current;
+      let head = 0;
+      let tail = 1;
+
+      while (head < tail) {
+         let current = pathQueue[head];
+         let head = head + 1;
+         let currentRow = Rival.rowOfPathIndex(current);
+         let currentCol = Rival.colOfPathIndex(current);
+         let currentDistance = pathDistance[current];
+
+         let tail = Rival.addPathCell(gameBoard, currentRow, currentCol + 1, currentDistance + 1, tail);
+         let tail = Rival.addPathCell(gameBoard, currentRow + 1, currentCol, currentDistance + 1, tail);
+         let tail = Rival.addPathCell(gameBoard, currentRow, currentCol - 1, currentDistance + 1, tail);
+         let tail = Rival.addPathCell(gameBoard, currentRow - 1, currentCol, currentDistance + 1, tail);
+      }
+
+      let pathTail = tail;
       return;
    }
 
@@ -133,8 +188,12 @@ class Rival {
       let slowStep = ~slowStep;
 
       let moved = false;
+      if (~pathBuilt) {
+         do Rival.buildPathMap(board, targetRow, targetCol);
+         let pathBuilt = true;
+      }
 
-      let moved = moveByPath(targetRow, targetCol, runAway);
+      let moved = moveByPath(runAway);
 
       if ((~moved) & (~runAway)) {
          let moved = tryMove(row, col + 1);
@@ -156,65 +215,15 @@ class Rival {
       return;
    }
 
-   method boolean moveByPath(int targetRow, int targetCol, boolean runAway) {
-      var int head;
-      var int tail;
-      var int current;
-      var int currentRow;
-      var int currentCol;
-      var int currentDistance;
-      var boolean foundSelf;
-      var boolean moved;
-
-      if (~board.canEnter(targetRow, targetCol)) {
-         return false;
-      }
-
-      let current = indexOf(targetRow, targetCol);
-      let pathDistance[current] = 0;
-      let pathQueue[0] = current;
-      let head = 0;
-      let tail = 1;
-      let foundSelf = false;
-
-      while ((head < tail) & (~foundSelf)) {
-         let current = pathQueue[head];
-         let head = head + 1;
-         let currentRow = rowOfIndex(current);
-         let currentCol = colOfIndex(current);
-         let currentDistance = pathDistance[current];
-
-         if ((currentRow = row) & (currentCol = col)) {
-            let foundSelf = true;
-            if (runAway) {
-               let tail = addPathCell(currentRow, currentCol + 1, currentDistance + 1, tail);
-               let tail = addPathCell(currentRow + 1, currentCol, currentDistance + 1, tail);
-               let tail = addPathCell(currentRow, currentCol - 1, currentDistance + 1, tail);
-               let tail = addPathCell(currentRow - 1, currentCol, currentDistance + 1, tail);
-            }
-         } else {
-            let tail = addPathCell(currentRow, currentCol + 1, currentDistance + 1, tail);
-            let tail = addPathCell(currentRow + 1, currentCol, currentDistance + 1, tail);
-            let tail = addPathCell(currentRow, currentCol - 1, currentDistance + 1, tail);
-            let tail = addPathCell(currentRow - 1, currentCol, currentDistance + 1, tail);
-         }
-      }
-
-      if (~foundSelf) {
-         do clearVisitedPath(tail);
-         return false;
-      }
-
+   method boolean moveByPath(boolean runAway) {
       if (runAway) {
-         let moved = followFarthestNeighbor();
-      } else {
-         let moved = followBestNeighbor();
+         return followFarthestNeighbor();
       }
-      do clearVisitedPath(tail);
-      return moved;
+
+      return followBestNeighbor();
    }
 
-   method void clearAllPathDistance() {
+   function void clearAllPathDistance() {
       var int i;
 
       let i = 0;
@@ -226,7 +235,7 @@ class Rival {
       return;
    }
 
-   method void clearVisitedPath(int tail) {
+   function void clearVisitedPath(int tail) {
       var int i;
 
       let i = 0;
@@ -238,11 +247,11 @@ class Rival {
       return;
    }
 
-   method int addPathCell(int nextRow, int nextCol, int nextDistance, int tail) {
+   function int addPathCell(Board gameBoard, int nextRow, int nextCol, int nextDistance, int tail) {
       var int nextIndex;
 
-      if (board.canEnter(nextRow, nextCol)) {
-         let nextIndex = indexOf(nextRow, nextCol);
+      if (gameBoard.canEnter(nextRow, nextCol)) {
+         let nextIndex = Rival.pathIndex(nextRow, nextCol);
          if (pathDistance[nextIndex] = -1) {
             let pathDistance[nextIndex] = nextDistance;
             let pathQueue[tail] = nextIndex;
@@ -345,21 +354,21 @@ class Rival {
 
    method int neighborDistance(int testRow, int testCol) {
       if (board.canEnter(testRow, testCol)) {
-         return pathDistance[indexOf(testRow, testCol)];
+         return pathDistance[Rival.pathIndex(testRow, testCol)];
       }
 
       return -1;
    }
 
-   method int indexOf(int targetRow, int targetCol) {
+   function int pathIndex(int targetRow, int targetCol) {
       return (targetRow * 31) + targetCol;
    }
 
-   method int rowOfIndex(int index) {
+   function int rowOfPathIndex(int index) {
       return index / 31;
    }
 
-   method int colOfIndex(int index) {
+   function int colOfPathIndex(int index) {
       var int targetRow;
 
       let targetRow = index / 31;

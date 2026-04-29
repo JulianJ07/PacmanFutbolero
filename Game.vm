@@ -244,6 +244,8 @@ goto IF_FALSE9
 label IF_TRUE9
 push constant 0
 pop this 8
+call Rival.beginPathFrame 0
+pop temp 0
 push this 2
 push this 1
 call Player.getRow 1
