@@ -80,6 +80,6 @@ La pantalla oficial de Nand2Tetris no soporta colores reales como rojo, azul o a
 
 ## Compilacion
 
-El proyecto ya incluye archivos `.vm`. Si modificas los `.jack`, vuelve a compilar la carpeta con:
+El proyecto ya incluye archivos `.vm`. Si modificas los `.jack`, vuelve a compilar la carpeta con este ejemplo:
 
 `C:\Users\Julian\Downloads\nand2tetris\nand2tetris\tools\JackCompiler.bat "C:\Users\Julian\Documents\Codex\2026-04-28\pacman futbolero"`
