@@ -96,7 +96,7 @@ class Rival {
       return;
    }
 
-   method void moveStep(int targetRow, int targetCol) {
+   method void moveStep(int targetRow, int targetCol, boolean runAway) {
       var boolean moved;
 
       if (~active) {
@@ -125,18 +125,18 @@ class Rival {
 
       let moved = false;
 
-      let moved = moveByBestPath(targetRow, targetCol);
+      let moved = moveByPath(targetRow, targetCol, runAway);
 
-      if (~moved) {
+      if ((~moved) & (~runAway)) {
          let moved = tryMove(row, col + 1);
       }
-      if (~moved) {
+      if ((~moved) & (~runAway)) {
          let moved = tryMove(row, col - 1);
       }
-      if (~moved) {
+      if ((~moved) & (~runAway)) {
          let moved = tryMove(row + 1, col);
       }
-      if (~moved) {
+      if ((~moved) & (~runAway)) {
          let moved = tryMove(row - 1, col);
       }
 
@@ -147,7 +147,7 @@ class Rival {
       return;
    }
 
-   method boolean moveByBestPath(int targetRow, int targetCol) {
+   method boolean moveByPath(int targetRow, int targetCol, boolean runAway) {
       var int head;
       var int tail;
       var int current;
@@ -177,6 +177,12 @@ class Rival {
 
          if ((currentRow = row) & (currentCol = col)) {
             let foundSelf = true;
+            if (runAway) {
+               let tail = addPathCell(currentRow, currentCol + 1, currentDistance + 1, tail);
+               let tail = addPathCell(currentRow + 1, currentCol, currentDistance + 1, tail);
+               let tail = addPathCell(currentRow, currentCol - 1, currentDistance + 1, tail);
+               let tail = addPathCell(currentRow - 1, currentCol, currentDistance + 1, tail);
+            }
          } else {
             let tail = addPathCell(currentRow, currentCol + 1, currentDistance + 1, tail);
             let tail = addPathCell(currentRow + 1, currentCol, currentDistance + 1, tail);
@@ -190,7 +196,11 @@ class Rival {
          return false;
       }
 
-      let moved = followBestNeighbor();
+      if (runAway) {
+         let moved = followFarthestNeighbor();
+      } else {
+         let moved = followBestNeighbor();
+      }
       do clearVisitedPath(tail);
       return moved;
    }
@@ -273,6 +283,51 @@ class Rival {
       }
 
       if (bestDistance < 30000) {
+         return tryMove(bestRow, bestCol);
+      }
+
+      return false;
+   }
+
+   method boolean followFarthestNeighbor() {
+      var int bestRow;
+      var int bestCol;
+      var int bestDistance;
+      var int currentDistance;
+
+      let bestRow = row;
+      let bestCol = col;
+      let bestDistance = neighborDistance(row, col);
+
+      let currentDistance = neighborDistance(row, col + 1);
+      if (currentDistance > bestDistance) {
+         let bestDistance = currentDistance;
+         let bestRow = row;
+         let bestCol = col + 1;
+      }
+
+      let currentDistance = neighborDistance(row + 1, col);
+      if (currentDistance > bestDistance) {
+         let bestDistance = currentDistance;
+         let bestRow = row + 1;
+         let bestCol = col;
+      }
+
+      let currentDistance = neighborDistance(row, col - 1);
+      if (currentDistance > bestDistance) {
+         let bestDistance = currentDistance;
+         let bestRow = row;
+         let bestCol = col - 1;
+      }
+
+      let currentDistance = neighborDistance(row - 1, col);
+      if (currentDistance > bestDistance) {
+         let bestDistance = currentDistance;
+         let bestRow = row - 1;
+         let bestCol = col;
+      }
+
+      if ((~(bestRow = row)) | (~(bestCol = col))) {
          return tryMove(bestRow, bestCol);
       }
 

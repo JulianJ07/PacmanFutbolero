@@ -101,11 +101,11 @@ class Game {
          let tick = tick + 1;
          if (tick > 0) {
             let tick = 0;
-            do rivalA.moveStep(player.getRow(), player.getCol());
-            do rivalB.moveStep(player.getRow(), player.getCol());
-            do rivalC.moveStep(player.getRow(), player.getCol());
-            do rivalD.moveStep(player.getRow(), player.getCol());
-            do rivalE.moveStep(player.getRow(), player.getCol());
+            do rivalA.moveStep(player.getRow(), player.getCol(), powerTimer > 0);
+            do rivalB.moveStep(player.getRow(), player.getCol(), powerTimer > 0);
+            do rivalC.moveStep(player.getRow(), player.getCol(), powerTimer > 0);
+            do rivalD.moveStep(player.getRow(), player.getCol(), powerTimer > 0);
+            do rivalE.moveStep(player.getRow(), player.getCol(), powerTimer > 0);
          }
 
          do handleCollisions();

@@ -43,7 +43,7 @@ El objetivo es recorrer el laberinto y recoger todos los objetos sin ser atrapad
 - Conos de entrenamiento: dan 10 puntos.
 - Trofeos: dan 50 puntos.
 - Balones: dan 100 puntos y activan un poder temporal.
-- Si tienes el poder del balon activo, el jugador se ve mas grande, titila y puedes tocar a un rival para derrotarlo. El rival reaparece en el centro, queda en reposo unos 5 segundos y luego vuelve a perseguirte.
+- Si tienes el poder del balon activo, el jugador se ve mas grande, titila y los rivales intentan alejarse de ti. Puedes tocar a un rival para derrotarlo. El rival reaparece en el centro, queda en reposo unos 5 segundos y luego vuelve a perseguirte.
 - Si un rival te toca sin tener poder activo, termina la partida.
 - Ganas cuando recoges todos los objetos del tablero.
 - Los rivales se liberan por progreso: el primero sale al iniciar, el segundo al 25%, el tercero al 50%, el cuarto al 75% y el quinto al 100%.
@@ -58,7 +58,7 @@ El objetivo es recorrer el laberinto y recoger todos los objetos sin ser atrapad
 
 `Player.jack` representa al futbolista principal. Tiene su propia posicion, metodo de movimiento y metodo de dibujo. Cuando el poder del balon esta activo, cambia a un sprite mas grande y alterna entre dos dibujos para simular titileo.
 
-`Rival.jack` representa a cada futbolista rival. Cada rival puede estar activo o esperando dentro de la jaula. Cuando `Game.jack` lo libera, abandona la jaula por la puerta central y despues busca al jugador calculando el camino mas corto por las celdas transitables del laberinto, evitando quedarse chocando contra paredes. Cuando el jugador tiene el poder del balon y toca a un rival, el rival reaparece en el centro, se dibuja en modo reposo durante unos 5 segundos y despues vuelve a salir para perseguir al jugador.
+`Rival.jack` representa a cada futbolista rival. Cada rival puede estar activo o esperando dentro de la jaula. Cuando `Game.jack` lo libera, abandona la jaula por la puerta central y despues busca al jugador calculando el camino mas corto por las celdas transitables del laberinto, evitando quedarse chocando contra paredes. Si el jugador tiene el poder del balon, usa el mismo mapa de distancias para elegir una celda mas lejana y alejarse. Cuando el jugador toca a un rival con el poder activo, el rival reaparece en el centro, se dibuja en modo reposo durante unos 5 segundos y despues vuelve a salir para perseguir al jugador.
 
 ## Nota sobre colores
 

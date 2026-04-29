@@ -256,10 +256,14 @@ pop local 0
 push pointer 0
 push argument 1
 push argument 2
-call Rival.moveByBestPath 3
+push argument 3
+call Rival.moveByPath 4
 pop local 0
 push local 0
 not
+push argument 3
+not
+and
 if-goto IF_TRUE5
 goto IF_FALSE5
 label IF_TRUE5
@@ -273,6 +277,9 @@ pop local 0
 label IF_FALSE5
 push local 0
 not
+push argument 3
+not
+and
 if-goto IF_TRUE6
 goto IF_FALSE6
 label IF_TRUE6
@@ -286,6 +293,9 @@ pop local 0
 label IF_FALSE6
 push local 0
 not
+push argument 3
+not
+and
 if-goto IF_TRUE7
 goto IF_FALSE7
 label IF_TRUE7
@@ -299,6 +309,9 @@ pop local 0
 label IF_FALSE7
 push local 0
 not
+push argument 3
+not
+and
 if-goto IF_TRUE8
 goto IF_FALSE8
 label IF_TRUE8
@@ -321,7 +334,7 @@ pop temp 0
 label IF_FALSE9
 push constant 0
 return
-function Rival.moveByBestPath 8
+function Rival.moveByPath 8
 push argument 0
 pop pointer 0
 push this 0
@@ -408,6 +421,55 @@ label IF_TRUE1
 push constant 0
 not
 pop local 6
+push argument 3
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push pointer 0
+push local 3
+push local 4
+push constant 1
+add
+push local 5
+push constant 1
+add
+push local 1
+call Rival.addPathCell 5
+pop local 1
+push pointer 0
+push local 3
+push constant 1
+add
+push local 4
+push local 5
+push constant 1
+add
+push local 1
+call Rival.addPathCell 5
+pop local 1
+push pointer 0
+push local 3
+push local 4
+push constant 1
+sub
+push local 5
+push constant 1
+add
+push local 1
+call Rival.addPathCell 5
+pop local 1
+push pointer 0
+push local 3
+push constant 1
+sub
+push local 4
+push local 5
+push constant 1
+add
+push local 1
+call Rival.addPathCell 5
+pop local 1
+label IF_FALSE2
 goto IF_END1
 label IF_FALSE1
 push pointer 0
@@ -459,19 +521,29 @@ goto WHILE_EXP0
 label WHILE_END0
 push local 6
 not
-if-goto IF_TRUE2
-goto IF_FALSE2
-label IF_TRUE2
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
 push pointer 0
 push local 1
 call Rival.clearVisitedPath 2
 pop temp 0
 push constant 0
 return
-label IF_FALSE2
+label IF_FALSE3
+push argument 3
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push pointer 0
+call Rival.followFarthestNeighbor 1
+pop local 7
+goto IF_END4
+label IF_FALSE4
 push pointer 0
 call Rival.followBestNeighbor 1
 pop local 7
+label IF_END4
 push pointer 0
 push local 1
 call Rival.clearVisitedPath 2
@@ -708,6 +780,126 @@ label IF_FALSE3
 push local 2
 push constant 30000
 lt
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push pointer 0
+push local 0
+push local 1
+call Rival.tryMove 3
+return
+label IF_FALSE4
+push constant 0
+return
+function Rival.followFarthestNeighbor 4
+push argument 0
+pop pointer 0
+push this 1
+pop local 0
+push this 2
+pop local 1
+push pointer 0
+push this 1
+push this 2
+call Rival.neighborDistance 3
+pop local 2
+push pointer 0
+push this 1
+push this 2
+push constant 1
+add
+call Rival.neighborDistance 3
+pop local 3
+push local 3
+push local 2
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push local 3
+pop local 2
+push this 1
+pop local 0
+push this 2
+push constant 1
+add
+pop local 1
+label IF_FALSE0
+push pointer 0
+push this 1
+push constant 1
+add
+push this 2
+call Rival.neighborDistance 3
+pop local 3
+push local 3
+push local 2
+gt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 3
+pop local 2
+push this 1
+push constant 1
+add
+pop local 0
+push this 2
+pop local 1
+label IF_FALSE1
+push pointer 0
+push this 1
+push this 2
+push constant 1
+sub
+call Rival.neighborDistance 3
+pop local 3
+push local 3
+push local 2
+gt
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push local 3
+pop local 2
+push this 1
+pop local 0
+push this 2
+push constant 1
+sub
+pop local 1
+label IF_FALSE2
+push pointer 0
+push this 1
+push constant 1
+sub
+push this 2
+call Rival.neighborDistance 3
+pop local 3
+push local 3
+push local 2
+gt
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push local 3
+pop local 2
+push this 1
+push constant 1
+sub
+pop local 0
+push this 2
+pop local 1
+label IF_FALSE3
+push local 0
+push this 1
+eq
+not
+push local 1
+push this 2
+eq
+not
+or
 if-goto IF_TRUE4
 goto IF_FALSE4
 label IF_TRUE4
