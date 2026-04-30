@@ -38,6 +38,9 @@ class Game {
    method void run() {
       var int key;
       var int gained;
+      var int oldRow;
+      var int oldCol;
+      var boolean playerMoved;
       var boolean doneWaiting;
 
       do Screen.clearScreen();
@@ -52,6 +55,9 @@ class Game {
       while (running) {
          let key = Keyboard.keyPressed();
          let gained = 0;
+         let oldRow = player.getRow();
+         let oldCol = player.getCol();
+         let playerMoved = false;
 
          if (key = 140) {
             let running = false;
@@ -72,6 +78,16 @@ class Game {
          }
          if (key = 133) {
             let gained = player.move(1, 0);
+         }
+
+         if (~(oldRow = player.getRow())) {
+            let playerMoved = true;
+         }
+         if (~(oldCol = player.getCol())) {
+            let playerMoved = true;
+         }
+         if (playerMoved) {
+            do Rival.beginPathFrame();
          }
 
          if (gained > 0) {
@@ -101,7 +117,12 @@ class Game {
          let tick = tick + 1;
          if (tick > 0) {
             let tick = 0;
-            do Rival.beginPathFrame();
+            do Rival.beginMoveFrame();
+            do rivalA.reservePosition();
+            do rivalB.reservePosition();
+            do rivalC.reservePosition();
+            do rivalD.reservePosition();
+            do rivalE.reservePosition();
             do rivalA.moveStep(player.getRow(), player.getCol(), powerTimer > 0);
             do rivalB.moveStep(player.getRow(), player.getCol(), powerTimer > 0);
             do rivalC.moveStep(player.getRow(), player.getCol(), powerTimer > 0);

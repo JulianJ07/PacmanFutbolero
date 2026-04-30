@@ -1,9 +1,13 @@
 class Rival {
    static Array pathDistance;
    static Array pathQueue;
+   static Array pathOpen;
+   static Array reservedCells;
    static boolean pathReady;
    static boolean pathBuilt;
    static int pathTail;
+   static int reservedCount;
+   static int nextDirectionBias;
 
    field Board board;
    field int row;
@@ -13,6 +17,7 @@ class Rival {
    field int releaseDelay;
    field int straightSteps;
    field boolean slowStep;
+   field int directionBias;
 
    constructor Rival new(Board gameBoard, int startRow, int startCol) {
       let board = gameBoard;
@@ -23,14 +28,24 @@ class Rival {
       let releaseDelay = 0;
       let straightSteps = 0;
       let slowStep = false;
+      let directionBias = nextDirectionBias;
+      let nextDirectionBias = nextDirectionBias + 1;
+      if (nextDirectionBias > 3) {
+         let nextDirectionBias = 0;
+      }
+      let pathBuilt = false;
 
       if (~pathReady) {
          let pathDistance = Array.new(651);
          let pathQueue = Array.new(651);
+         let pathOpen = Array.new(651);
+         let reservedCells = Array.new(16);
          do Rival.clearAllPathDistance();
+         do Rival.buildPathOpen(gameBoard);
          let pathReady = true;
          let pathBuilt = false;
          let pathTail = 0;
+         let reservedCount = 0;
       }
 
       return this;
@@ -66,49 +81,81 @@ class Rival {
       return;
    }
 
+   function void beginMoveFrame() {
+      let reservedCount = 0;
+      return;
+   }
+
+   method void reservePosition() {
+      if (active) {
+         do Rival.reserveCell(row, col);
+      }
+      return;
+   }
+
    function void buildPathMap(Board gameBoard, int targetRow, int targetCol) {
       var int head;
       var int tail;
       var int current;
-      var int currentRow;
-      var int currentCol;
       var int currentDistance;
+      var int targetIndex;
 
       if (~pathReady) {
          let pathDistance = Array.new(651);
          let pathQueue = Array.new(651);
+         let pathOpen = Array.new(651);
+         let reservedCells = Array.new(16);
          do Rival.clearAllPathDistance();
+         do Rival.buildPathOpen(gameBoard);
          let pathReady = true;
          let pathTail = 0;
+         let reservedCount = 0;
       }
 
       do Rival.clearVisitedPath(pathTail);
       let pathTail = 0;
 
-      if (~gameBoard.canEnter(targetRow, targetCol)) {
+      let targetIndex = Rival.pathIndex(targetRow, targetCol);
+      if (~pathOpen[targetIndex]) {
          return;
       }
 
-      let current = Rival.pathIndex(targetRow, targetCol);
-      let pathDistance[current] = 0;
-      let pathQueue[0] = current;
+      let pathDistance[targetIndex] = 0;
+      let pathQueue[0] = targetIndex;
       let head = 0;
       let tail = 1;
 
       while (head < tail) {
          let current = pathQueue[head];
          let head = head + 1;
-         let currentRow = Rival.rowOfPathIndex(current);
-         let currentCol = Rival.colOfPathIndex(current);
          let currentDistance = pathDistance[current];
 
-         let tail = Rival.addPathCell(gameBoard, currentRow, currentCol + 1, currentDistance + 1, tail);
-         let tail = Rival.addPathCell(gameBoard, currentRow + 1, currentCol, currentDistance + 1, tail);
-         let tail = Rival.addPathCell(gameBoard, currentRow, currentCol - 1, currentDistance + 1, tail);
-         let tail = Rival.addPathCell(gameBoard, currentRow - 1, currentCol, currentDistance + 1, tail);
+         let tail = Rival.addPathIndex(current + 1, currentDistance + 1, tail);
+         let tail = Rival.addPathIndex(current + 31, currentDistance + 1, tail);
+         let tail = Rival.addPathIndex(current - 1, currentDistance + 1, tail);
+         let tail = Rival.addPathIndex(current - 31, currentDistance + 1, tail);
       }
 
       let pathTail = tail;
+      return;
+   }
+
+   function void buildPathOpen(Board gameBoard) {
+      var int row;
+      var int col;
+      var int index;
+
+      let row = 0;
+      while (row < 21) {
+         let col = 0;
+         while (col < 31) {
+            let index = Rival.pathIndex(row, col);
+            let pathOpen[index] = gameBoard.canEnter(row, col);
+            let col = col + 1;
+         }
+         let row = row + 1;
+      }
+
       return;
    }
 
@@ -139,12 +186,7 @@ class Rival {
          }
       }
 
-      if (board.canEnter(nextRow, nextCol)) {
-         do board.drawCell(row, col);
-         let row = nextRow;
-         let col = nextCol;
-         do draw();
-      }
+      do tryMove(nextRow, nextCol);
 
       if (~isInCage()) {
          let leavingCage = false;
@@ -247,11 +289,8 @@ class Rival {
       return;
    }
 
-   function int addPathCell(Board gameBoard, int nextRow, int nextCol, int nextDistance, int tail) {
-      var int nextIndex;
-
-      if (gameBoard.canEnter(nextRow, nextCol)) {
-         let nextIndex = Rival.pathIndex(nextRow, nextCol);
+   function int addPathIndex(int nextIndex, int nextDistance, int tail) {
+      if (pathOpen[nextIndex]) {
          if (pathDistance[nextIndex] = -1) {
             let pathDistance[nextIndex] = nextDistance;
             let pathQueue[tail] = nextIndex;
@@ -262,42 +301,57 @@ class Rival {
       return tail;
    }
 
+   function void reserveCell(int cellRow, int cellCol) {
+      if (reservedCount < 16) {
+         let reservedCells[reservedCount] = Rival.pathIndex(cellRow, cellCol);
+         let reservedCount = reservedCount + 1;
+      }
+      return;
+   }
+
+   function boolean isReservedIndex(int index) {
+      var int i;
+
+      let i = 0;
+      while (i < reservedCount) {
+         if (reservedCells[i] = index) {
+            return true;
+         }
+         let i = i + 1;
+      }
+
+      return false;
+   }
+
    method boolean followBestNeighbor() {
       var int bestRow;
       var int bestCol;
       var int bestDistance;
       var int currentDistance;
+      var int step;
+      var int direction;
+      var int testRow;
+      var int testCol;
 
       let bestRow = row;
       let bestCol = col;
       let bestDistance = 30000;
 
-      let currentDistance = neighborDistance(row, col + 1);
-      if ((currentDistance > -1) & (currentDistance < bestDistance)) {
-         let bestDistance = currentDistance;
-         let bestRow = row;
-         let bestCol = col + 1;
-      }
-
-      let currentDistance = neighborDistance(row + 1, col);
-      if ((currentDistance > -1) & (currentDistance < bestDistance)) {
-         let bestDistance = currentDistance;
-         let bestRow = row + 1;
-         let bestCol = col;
-      }
-
-      let currentDistance = neighborDistance(row, col - 1);
-      if ((currentDistance > -1) & (currentDistance < bestDistance)) {
-         let bestDistance = currentDistance;
-         let bestRow = row;
-         let bestCol = col - 1;
-      }
-
-      let currentDistance = neighborDistance(row - 1, col);
-      if ((currentDistance > -1) & (currentDistance < bestDistance)) {
-         let bestDistance = currentDistance;
-         let bestRow = row - 1;
-         let bestCol = col;
+      let step = 0;
+      while (step < 4) {
+         let direction = directionBias + step;
+         if (direction > 3) {
+            let direction = direction - 4;
+         }
+         let testRow = candidateRow(direction);
+         let testCol = candidateCol(direction);
+         let currentDistance = neighborDistance(testRow, testCol);
+         if ((currentDistance > -1) & (currentDistance < bestDistance)) {
+            let bestDistance = currentDistance;
+            let bestRow = testRow;
+            let bestCol = testCol;
+         }
+         let step = step + 1;
       }
 
       if (bestDistance < 30000) {
@@ -312,37 +366,30 @@ class Rival {
       var int bestCol;
       var int bestDistance;
       var int currentDistance;
+      var int step;
+      var int direction;
+      var int testRow;
+      var int testCol;
 
       let bestRow = row;
       let bestCol = col;
       let bestDistance = neighborDistance(row, col);
 
-      let currentDistance = neighborDistance(row, col + 1);
-      if (currentDistance > bestDistance) {
-         let bestDistance = currentDistance;
-         let bestRow = row;
-         let bestCol = col + 1;
-      }
-
-      let currentDistance = neighborDistance(row + 1, col);
-      if (currentDistance > bestDistance) {
-         let bestDistance = currentDistance;
-         let bestRow = row + 1;
-         let bestCol = col;
-      }
-
-      let currentDistance = neighborDistance(row, col - 1);
-      if (currentDistance > bestDistance) {
-         let bestDistance = currentDistance;
-         let bestRow = row;
-         let bestCol = col - 1;
-      }
-
-      let currentDistance = neighborDistance(row - 1, col);
-      if (currentDistance > bestDistance) {
-         let bestDistance = currentDistance;
-         let bestRow = row - 1;
-         let bestCol = col;
+      let step = 0;
+      while (step < 4) {
+         let direction = directionBias + step;
+         if (direction > 3) {
+            let direction = direction - 4;
+         }
+         let testRow = candidateRow(direction);
+         let testCol = candidateCol(direction);
+         let currentDistance = neighborDistance(testRow, testCol);
+         if (currentDistance > bestDistance) {
+            let bestDistance = currentDistance;
+            let bestRow = testRow;
+            let bestCol = testCol;
+         }
+         let step = step + 1;
       }
 
       if ((~(bestRow = row)) | (~(bestCol = col))) {
@@ -353,8 +400,13 @@ class Rival {
    }
 
    method int neighborDistance(int testRow, int testCol) {
-      if (board.canEnter(testRow, testCol)) {
-         return pathDistance[Rival.pathIndex(testRow, testCol)];
+      var int testIndex;
+
+      let testIndex = Rival.pathIndex(testRow, testCol);
+      if (pathOpen[testIndex]) {
+         if (~Rival.isReservedIndex(testIndex)) {
+            return pathDistance[testIndex];
+         }
       }
 
       return -1;
@@ -364,24 +416,39 @@ class Rival {
       return (targetRow * 31) + targetCol;
    }
 
-   function int rowOfPathIndex(int index) {
-      return index / 31;
+   method int candidateRow(int direction) {
+      if (direction = 1) {
+         return row + 1;
+      }
+      if (direction = 3) {
+         return row - 1;
+      }
+      return row;
    }
 
-   function int colOfPathIndex(int index) {
-      var int targetRow;
-
-      let targetRow = index / 31;
-      return index - (targetRow * 31);
+   method int candidateCol(int direction) {
+      if (direction = 0) {
+         return col + 1;
+      }
+      if (direction = 2) {
+         return col - 1;
+      }
+      return col;
    }
 
    method boolean tryMove(int nextRow, int nextCol) {
+      var int nextIndex;
+
       if (board.canEnter(nextRow, nextCol)) {
-         do board.drawCell(row, col);
-         let row = nextRow;
-         let col = nextCol;
-         do draw();
-         return true;
+         let nextIndex = Rival.pathIndex(nextRow, nextCol);
+         if (~Rival.isReservedIndex(nextIndex)) {
+            do board.drawCell(row, col);
+            let row = nextRow;
+            let col = nextCol;
+            do Rival.reserveCell(row, col);
+            do draw();
+            return true;
+         }
       }
 
       return false;

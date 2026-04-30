@@ -1,5 +1,5 @@
 function Rival.new 0
-push constant 8
+push constant 9
 call Memory.alloc 1
 pop pointer 0
 push argument 0
@@ -19,27 +19,55 @@ push constant 0
 pop this 6
 push constant 0
 pop this 7
-push static 2
-not
+push static 8
+pop this 8
+push static 8
+push constant 1
+add
+pop static 8
+push static 8
+push constant 3
+gt
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
+push constant 0
+pop static 8
+label IF_FALSE0
+push constant 0
+pop static 5
+push static 4
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
 push constant 651
 call Array.new 1
 pop static 0
 push constant 651
 call Array.new 1
 pop static 1
+push constant 651
+call Array.new 1
+pop static 2
+push constant 16
+call Array.new 1
+pop static 3
 call Rival.clearAllPathDistance 0
+pop temp 0
+push argument 0
+call Rival.buildPathOpen 1
 pop temp 0
 push constant 0
 not
-pop static 2
-push constant 0
-pop static 3
-push constant 0
 pop static 4
-label IF_FALSE0
+push constant 0
+pop static 5
+push constant 0
+pop static 6
+push constant 0
+pop static 7
+label IF_FALSE1
 push pointer 0
 return
 function Rival.getRow 0
@@ -85,11 +113,30 @@ push constant 0
 return
 function Rival.beginPathFrame 0
 push constant 0
-pop static 3
+pop static 5
 push constant 0
 return
-function Rival.buildPathMap 6
-push static 2
+function Rival.beginMoveFrame 0
+push constant 0
+pop static 7
+push constant 0
+return
+function Rival.reservePosition 0
+push argument 0
+pop pointer 0
+push this 3
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 1
+push this 2
+call Rival.reserveCell 2
+pop temp 0
+label IF_FALSE0
+push constant 0
+return
+function Rival.buildPathMap 5
+push static 4
 not
 if-goto IF_TRUE0
 goto IF_FALSE0
@@ -100,23 +147,39 @@ pop static 0
 push constant 651
 call Array.new 1
 pop static 1
+push constant 651
+call Array.new 1
+pop static 2
+push constant 16
+call Array.new 1
+pop static 3
 call Rival.clearAllPathDistance 0
+pop temp 0
+push argument 0
+call Rival.buildPathOpen 1
 pop temp 0
 push constant 0
 not
-pop static 2
-push constant 0
 pop static 4
+push constant 0
+pop static 6
+push constant 0
+pop static 7
 label IF_FALSE0
-push static 4
+push static 6
 call Rival.clearVisitedPath 1
 pop temp 0
 push constant 0
-pop static 4
-push argument 0
+pop static 6
 push argument 1
 push argument 2
-call Board.canEnter 3
+call Rival.pathIndex 2
+pop local 4
+push local 4
+push static 2
+add
+pop pointer 1
+push that 0
 not
 if-goto IF_TRUE1
 goto IF_FALSE1
@@ -124,11 +187,7 @@ label IF_TRUE1
 push constant 0
 return
 label IF_FALSE1
-push argument 1
-push argument 2
-call Rival.pathIndex 2
-pop local 2
-push local 2
+push local 4
 push static 0
 add
 push constant 0
@@ -139,7 +198,7 @@ pop that 0
 push constant 0
 push static 1
 add
-push local 2
+push local 4
 pop temp 0
 pop pointer 1
 push temp 0
@@ -165,65 +224,97 @@ push constant 1
 add
 pop local 0
 push local 2
-call Rival.rowOfPathIndex 1
-pop local 3
-push local 2
-call Rival.colOfPathIndex 1
-pop local 4
-push local 2
 push static 0
 add
 pop pointer 1
 push that 0
-pop local 5
-push argument 0
-push local 3
-push local 4
+pop local 3
+push local 2
 push constant 1
 add
-push local 5
+push local 3
 push constant 1
 add
 push local 1
-call Rival.addPathCell 5
+call Rival.addPathIndex 3
 pop local 1
-push argument 0
-push local 3
-push constant 1
+push local 2
+push constant 31
 add
-push local 4
-push local 5
+push local 3
 push constant 1
 add
 push local 1
-call Rival.addPathCell 5
+call Rival.addPathIndex 3
 pop local 1
-push argument 0
-push local 3
-push local 4
+push local 2
 push constant 1
 sub
-push local 5
-push constant 1
-add
-push local 1
-call Rival.addPathCell 5
-pop local 1
-push argument 0
 push local 3
 push constant 1
+add
+push local 1
+call Rival.addPathIndex 3
+pop local 1
+push local 2
+push constant 31
 sub
-push local 4
-push local 5
+push local 3
 push constant 1
 add
 push local 1
-call Rival.addPathCell 5
+call Rival.addPathIndex 3
 pop local 1
 goto WHILE_EXP0
 label WHILE_END0
 push local 1
-pop static 4
+pop static 6
+push constant 0
+return
+function Rival.buildPathOpen 3
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push constant 21
+lt
+not
+if-goto WHILE_END0
+push constant 0
+pop local 1
+label WHILE_EXP1
+push local 1
+push constant 31
+lt
+not
+if-goto WHILE_END1
+push local 0
+push local 1
+call Rival.pathIndex 2
+pop local 2
+push local 2
+push static 2
+add
+push argument 0
+push local 0
+push local 1
+call Board.canEnter 3
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP1
+label WHILE_END1
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
 push constant 0
 return
 function Rival.isInCage 0
@@ -304,35 +395,20 @@ sub
 pop local 0
 label IF_END1
 label IF_END0
-push this 0
-push local 0
-push local 1
-call Board.canEnter 3
-if-goto IF_TRUE2
-goto IF_FALSE2
-label IF_TRUE2
-push this 0
-push this 1
-push this 2
-call Board.drawCell 3
-pop temp 0
-push local 0
-pop this 1
-push local 1
-pop this 2
 push pointer 0
-call Rival.draw 1
+push local 0
+push local 1
+call Rival.tryMove 3
 pop temp 0
-label IF_FALSE2
 push pointer 0
 call Rival.isInCage 1
 not
-if-goto IF_TRUE3
-goto IF_FALSE3
-label IF_TRUE3
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
 push constant 0
 pop this 4
-label IF_FALSE3
+label IF_FALSE2
 push constant 0
 return
 function Rival.moveStep 1
@@ -420,7 +496,7 @@ not
 pop this 7
 push constant 0
 pop local 0
-push static 3
+push static 5
 not
 if-goto IF_TRUE7
 goto IF_FALSE7
@@ -432,7 +508,7 @@ call Rival.buildPathMap 3
 pop temp 0
 push constant 0
 not
-pop static 3
+pop static 5
 label IF_FALSE7
 push pointer 0
 push argument 3
@@ -583,19 +659,16 @@ goto WHILE_EXP0
 label WHILE_END0
 push constant 0
 return
-function Rival.addPathCell 1
+function Rival.addPathIndex 0
 push argument 0
-push argument 1
-push argument 2
-call Board.canEnter 3
+push static 2
+add
+pop pointer 1
+push that 0
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
-push argument 1
-push argument 2
-call Rival.pathIndex 2
-pop local 0
-push local 0
+push argument 0
 push static 0
 add
 pop pointer 1
@@ -606,31 +679,86 @@ eq
 if-goto IF_TRUE1
 goto IF_FALSE1
 label IF_TRUE1
-push local 0
+push argument 0
 push static 0
 add
-push argument 3
+push argument 1
 pop temp 0
 pop pointer 1
 push temp 0
 pop that 0
-push argument 4
+push argument 2
 push static 1
 add
-push local 0
+push argument 0
 pop temp 0
 pop pointer 1
 push temp 0
 pop that 0
-push argument 4
+push argument 2
 push constant 1
 add
-pop argument 4
+pop argument 2
 label IF_FALSE1
 label IF_FALSE0
-push argument 4
+push argument 2
 return
-function Rival.followBestNeighbor 4
+function Rival.reserveCell 0
+push static 7
+push constant 16
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push static 7
+push static 3
+add
+push argument 0
+push argument 1
+call Rival.pathIndex 2
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push static 7
+push constant 1
+add
+pop static 7
+label IF_FALSE0
+push constant 0
+return
+function Rival.isReservedIndex 1
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push static 7
+lt
+not
+if-goto WHILE_END0
+push local 0
+push static 3
+add
+pop pointer 1
+push that 0
+push argument 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+not
+return
+label IF_FALSE0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Rival.followBestNeighbor 8
 push argument 0
 pop pointer 0
 push this 1
@@ -639,38 +767,40 @@ push this 2
 pop local 1
 push constant 30000
 pop local 2
-push pointer 0
-push this 1
-push this 2
-push constant 1
-add
-call Rival.neighborDistance 3
-pop local 3
-push local 3
-push constant 1
-neg
-gt
-push local 3
-push local 2
+push constant 0
+pop local 4
+label WHILE_EXP0
+push local 4
+push constant 4
 lt
-and
+not
+if-goto WHILE_END0
+push this 8
+push local 4
+add
+pop local 5
+push local 5
+push constant 3
+gt
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
-push local 3
-pop local 2
-push this 1
-pop local 0
-push this 2
-push constant 1
-add
-pop local 1
+push local 5
+push constant 4
+sub
+pop local 5
 label IF_FALSE0
 push pointer 0
-push this 1
-push constant 1
-add
-push this 2
+push local 5
+call Rival.candidateRow 2
+pop local 6
+push pointer 0
+push local 5
+call Rival.candidateCol 2
+pop local 7
+push pointer 0
+push local 6
+push local 7
 call Rival.neighborDistance 3
 pop local 3
 push local 3
@@ -686,82 +816,32 @@ goto IF_FALSE1
 label IF_TRUE1
 push local 3
 pop local 2
-push this 1
-push constant 1
-add
+push local 6
 pop local 0
-push this 2
+push local 7
 pop local 1
 label IF_FALSE1
-push pointer 0
-push this 1
-push this 2
+push local 4
 push constant 1
-sub
-call Rival.neighborDistance 3
-pop local 3
-push local 3
-push constant 1
-neg
-gt
-push local 3
-push local 2
-lt
-and
-if-goto IF_TRUE2
-goto IF_FALSE2
-label IF_TRUE2
-push local 3
-pop local 2
-push this 1
-pop local 0
-push this 2
-push constant 1
-sub
-pop local 1
-label IF_FALSE2
-push pointer 0
-push this 1
-push constant 1
-sub
-push this 2
-call Rival.neighborDistance 3
-pop local 3
-push local 3
-push constant 1
-neg
-gt
-push local 3
-push local 2
-lt
-and
-if-goto IF_TRUE3
-goto IF_FALSE3
-label IF_TRUE3
-push local 3
-pop local 2
-push this 1
-push constant 1
-sub
-pop local 0
-push this 2
-pop local 1
-label IF_FALSE3
+add
+pop local 4
+goto WHILE_EXP0
+label WHILE_END0
 push local 2
 push constant 30000
 lt
-if-goto IF_TRUE4
-goto IF_FALSE4
-label IF_TRUE4
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
 push pointer 0
 push local 0
 push local 1
 call Rival.tryMove 3
 return
-label IF_FALSE4
+label IF_FALSE2
 push constant 0
 return
-function Rival.followFarthestNeighbor 4
+function Rival.followFarthestNeighbor 8
 push argument 0
 pop pointer 0
 push this 1
@@ -773,33 +853,40 @@ push this 1
 push this 2
 call Rival.neighborDistance 3
 pop local 2
-push pointer 0
-push this 1
-push this 2
-push constant 1
+push constant 0
+pop local 4
+label WHILE_EXP0
+push local 4
+push constant 4
+lt
+not
+if-goto WHILE_END0
+push this 8
+push local 4
 add
-call Rival.neighborDistance 3
-pop local 3
-push local 3
-push local 2
+pop local 5
+push local 5
+push constant 3
 gt
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
-push local 3
-pop local 2
-push this 1
-pop local 0
-push this 2
-push constant 1
-add
-pop local 1
+push local 5
+push constant 4
+sub
+pop local 5
 label IF_FALSE0
 push pointer 0
-push this 1
-push constant 1
-add
-push this 2
+push local 5
+call Rival.candidateRow 2
+pop local 6
+push pointer 0
+push local 5
+call Rival.candidateCol 2
+pop local 7
+push pointer 0
+push local 6
+push local 7
 call Rival.neighborDistance 3
 pop local 3
 push local 3
@@ -810,57 +897,17 @@ goto IF_FALSE1
 label IF_TRUE1
 push local 3
 pop local 2
-push this 1
-push constant 1
-add
+push local 6
 pop local 0
-push this 2
+push local 7
 pop local 1
 label IF_FALSE1
-push pointer 0
-push this 1
-push this 2
+push local 4
 push constant 1
-sub
-call Rival.neighborDistance 3
-pop local 3
-push local 3
-push local 2
-gt
-if-goto IF_TRUE2
-goto IF_FALSE2
-label IF_TRUE2
-push local 3
-pop local 2
-push this 1
-pop local 0
-push this 2
-push constant 1
-sub
-pop local 1
-label IF_FALSE2
-push pointer 0
-push this 1
-push constant 1
-sub
-push this 2
-call Rival.neighborDistance 3
-pop local 3
-push local 3
-push local 2
-gt
-if-goto IF_TRUE3
-goto IF_FALSE3
-label IF_TRUE3
-push local 3
-pop local 2
-push this 1
-push constant 1
-sub
-pop local 0
-push this 2
-pop local 1
-label IF_FALSE3
+add
+pop local 4
+goto WHILE_EXP0
+label WHILE_END0
 push local 0
 push this 1
 eq
@@ -870,35 +917,45 @@ push this 2
 eq
 not
 or
-if-goto IF_TRUE4
-goto IF_FALSE4
-label IF_TRUE4
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
 push pointer 0
 push local 0
 push local 1
 call Rival.tryMove 3
 return
-label IF_FALSE4
+label IF_FALSE2
 push constant 0
 return
-function Rival.neighborDistance 0
+function Rival.neighborDistance 1
 push argument 0
 pop pointer 0
-push this 0
-push argument 1
-push argument 2
-call Board.canEnter 3
-if-goto IF_TRUE0
-goto IF_FALSE0
-label IF_TRUE0
 push argument 1
 push argument 2
 call Rival.pathIndex 2
+pop local 0
+push local 0
+push static 2
+add
+pop pointer 1
+push that 0
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push local 0
+call Rival.isReservedIndex 1
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 0
 push static 0
 add
 pop pointer 1
 push that 0
 return
+label IF_FALSE1
 label IF_FALSE0
 push constant 1
 neg
@@ -910,23 +967,61 @@ call Math.multiply 2
 push argument 1
 add
 return
-function Rival.rowOfPathIndex 0
+function Rival.candidateRow 0
 push argument 0
-push constant 31
-call Math.divide 2
+pop pointer 0
+push argument 1
+push constant 1
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 1
+push constant 1
+add
 return
-function Rival.colOfPathIndex 1
-push argument 0
-push constant 31
-call Math.divide 2
-pop local 0
-push argument 0
-push local 0
-push constant 31
-call Math.multiply 2
+label IF_FALSE0
+push argument 1
+push constant 3
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 1
+push constant 1
 sub
 return
-function Rival.tryMove 0
+label IF_FALSE1
+push this 1
+return
+function Rival.candidateCol 0
+push argument 0
+pop pointer 0
+push argument 1
+push constant 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 2
+push constant 1
+add
+return
+label IF_FALSE0
+push argument 1
+push constant 2
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 2
+push constant 1
+sub
+return
+label IF_FALSE1
+push this 2
+return
+function Rival.tryMove 1
 push argument 0
 pop pointer 0
 push this 0
@@ -936,6 +1031,16 @@ call Board.canEnter 3
 if-goto IF_TRUE0
 goto IF_FALSE0
 label IF_TRUE0
+push argument 1
+push argument 2
+call Rival.pathIndex 2
+pop local 0
+push local 0
+call Rival.isReservedIndex 1
+not
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
 push this 0
 push this 1
 push this 2
@@ -945,12 +1050,17 @@ push argument 1
 pop this 1
 push argument 2
 pop this 2
+push this 1
+push this 2
+call Rival.reserveCell 2
+pop temp 0
 push pointer 0
 call Rival.draw 1
 pop temp 0
 push constant 0
 not
 return
+label IF_FALSE1
 label IF_FALSE0
 push constant 0
 return

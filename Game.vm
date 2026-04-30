@@ -56,7 +56,7 @@ call Rival.release 1
 pop temp 0
 push pointer 0
 return
-function Game.run 3
+function Game.run 6
 push argument 0
 pop pointer 0
 call Screen.clearScreen 0
@@ -93,6 +93,14 @@ call Keyboard.keyPressed 0
 pop local 0
 push constant 0
 pop local 1
+push this 1
+call Player.getRow 1
+pop local 2
+push this 1
+call Player.getCol 1
+pop local 3
+push constant 0
+pop local 4
 push local 0
 push constant 140
 eq
@@ -164,12 +172,43 @@ push constant 0
 call Player.move 3
 pop local 1
 label IF_FALSE5
-push local 1
-push constant 0
-gt
+push local 2
+push this 1
+call Player.getRow 1
+eq
+not
 if-goto IF_TRUE6
 goto IF_FALSE6
 label IF_TRUE6
+push constant 0
+not
+pop local 4
+label IF_FALSE6
+push local 3
+push this 1
+call Player.getCol 1
+eq
+not
+if-goto IF_TRUE7
+goto IF_FALSE7
+label IF_TRUE7
+push constant 0
+not
+pop local 4
+label IF_FALSE7
+push local 4
+if-goto IF_TRUE8
+goto IF_FALSE8
+label IF_TRUE8
+call Rival.beginPathFrame 0
+pop temp 0
+label IF_FALSE8
+push local 1
+push constant 0
+gt
+if-goto IF_TRUE9
+goto IF_FALSE9
+label IF_TRUE9
 push this 7
 push local 1
 add
@@ -177,9 +216,9 @@ pop this 7
 push local 1
 push constant 100
 eq
-if-goto IF_TRUE7
-goto IF_FALSE7
-label IF_TRUE7
+if-goto IF_TRUE10
+goto IF_FALSE10
+label IF_TRUE10
 push constant 80
 pop this 10
 push constant 0
@@ -199,7 +238,7 @@ pop temp 0
 push this 1
 call Player.refresh 1
 pop temp 0
-label IF_FALSE7
+label IF_FALSE10
 push pointer 0
 call Game.updateRivalRelease 1
 pop temp 0
@@ -209,7 +248,7 @@ pop temp 0
 push pointer 0
 call Game.drawHud 1
 pop temp 0
-label IF_FALSE6
+label IF_FALSE9
 push pointer 0
 call Game.handleCollisions 1
 pop temp 0
@@ -217,9 +256,9 @@ push this 0
 call Board.remainingItems 1
 push constant 0
 eq
-if-goto IF_TRUE8
-goto IF_FALSE8
-label IF_TRUE8
+if-goto IF_TRUE11
+goto IF_FALSE11
+label IF_TRUE11
 push pointer 0
 call Game.updateRivalRelease 1
 pop temp 0
@@ -231,7 +270,7 @@ not
 pop this 13
 push constant 0
 pop this 12
-label IF_FALSE8
+label IF_FALSE11
 push this 8
 push constant 1
 add
@@ -239,12 +278,27 @@ pop this 8
 push this 8
 push constant 0
 gt
-if-goto IF_TRUE9
-goto IF_FALSE9
-label IF_TRUE9
+if-goto IF_TRUE12
+goto IF_FALSE12
+label IF_TRUE12
 push constant 0
 pop this 8
-call Rival.beginPathFrame 0
+call Rival.beginMoveFrame 0
+pop temp 0
+push this 2
+call Rival.reservePosition 1
+pop temp 0
+push this 3
+call Rival.reservePosition 1
+pop temp 0
+push this 4
+call Rival.reservePosition 1
+pop temp 0
+push this 5
+call Rival.reservePosition 1
+pop temp 0
+push this 6
+call Rival.reservePosition 1
 pop temp 0
 push this 2
 push this 1
@@ -296,16 +350,16 @@ push constant 0
 gt
 call Rival.moveStep 4
 pop temp 0
-label IF_FALSE9
+label IF_FALSE12
 push pointer 0
 call Game.handleCollisions 1
 pop temp 0
 push this 10
 push constant 0
 gt
-if-goto IF_TRUE10
-goto IF_FALSE10
-label IF_TRUE10
+if-goto IF_TRUE13
+goto IF_FALSE13
+label IF_TRUE13
 push this 10
 push constant 1
 sub
@@ -320,14 +374,14 @@ pop temp 0
 push this 10
 push constant 0
 eq
-if-goto IF_TRUE11
-goto IF_FALSE11
-label IF_TRUE11
+if-goto IF_TRUE14
+goto IF_FALSE14
+label IF_TRUE14
 push this 1
 push constant 0
 call Player.setPowered 2
 pop temp 0
-label IF_FALSE11
+label IF_FALSE14
 push this 1
 call Player.refresh 1
 pop temp 0
@@ -345,35 +399,35 @@ push this 10
 push constant 0
 eq
 or
-if-goto IF_TRUE12
-goto IF_FALSE12
-label IF_TRUE12
+if-goto IF_TRUE15
+goto IF_FALSE15
+label IF_TRUE15
 push constant 0
 pop this 9
 push pointer 0
 call Game.drawHud 1
 pop temp 0
-label IF_FALSE12
-label IF_FALSE10
+label IF_FALSE15
+label IF_FALSE13
 push constant 55
 call Sys.wait 1
 pop temp 0
 goto WHILE_EXP0
 label WHILE_END0
 push this 14
-if-goto IF_TRUE13
-goto IF_FALSE13
-label IF_TRUE13
+if-goto IF_TRUE16
+goto IF_FALSE16
+label IF_TRUE16
 push constant 0
 return
-label IF_FALSE13
+label IF_FALSE16
 push pointer 0
 call Game.drawGameOver 1
 pop temp 0
 push constant 0
-pop local 2
+pop local 5
 label WHILE_EXP1
-push local 2
+push local 5
 not
 not
 if-goto WHILE_END1
@@ -382,26 +436,26 @@ pop local 0
 push local 0
 push constant 140
 eq
-if-goto IF_TRUE14
-goto IF_FALSE14
-label IF_TRUE14
+if-goto IF_TRUE17
+goto IF_FALSE17
+label IF_TRUE17
 push constant 0
 not
-pop local 2
-label IF_FALSE14
+pop local 5
+label IF_FALSE17
 push pointer 0
 push local 0
 call Game.isRestartKey 2
-if-goto IF_TRUE15
-goto IF_FALSE15
-label IF_TRUE15
+if-goto IF_TRUE18
+goto IF_FALSE18
+label IF_TRUE18
 push constant 0
 not
 pop this 14
 push constant 0
 not
-pop local 2
-label IF_FALSE15
+pop local 5
+label IF_FALSE18
 push constant 100
 call Sys.wait 1
 pop temp 0
