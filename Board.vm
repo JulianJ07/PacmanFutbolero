@@ -1,5 +1,5 @@
 function Board.new 3
-push constant 8
+push constant 9
 call Memory.alloc 1
 pop pointer 0
 push constant 21
@@ -16,6 +16,8 @@ push constant 0
 pop this 6
 push constant 0
 pop this 7
+push constant 0
+pop this 8
 push this 0
 push this 1
 call Math.multiply 2
@@ -189,6 +191,30 @@ push constant 29
 push constant 2
 call Board.setItem 4
 pop temp 0
+push pointer 0
+push constant 5
+push constant 8
+push constant 0
+call Board.setItem 4
+pop temp 0
+push pointer 0
+push constant 5
+push constant 22
+push constant 0
+call Board.setItem 4
+pop temp 0
+push pointer 0
+push constant 16
+push constant 3
+push constant 0
+call Board.setItem 4
+pop temp 0
+push pointer 0
+push constant 16
+push constant 27
+push constant 0
+call Board.setItem 4
+pop temp 0
 push this 6
 pop this 7
 push pointer 0
@@ -291,6 +317,364 @@ push this 7
 push this 6
 sub
 return
+function Board.isSpeedBoost 0
+push argument 0
+pop pointer 0
+push argument 1
+push constant 1
+eq
+push argument 2
+push constant 15
+eq
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+not
+return
+label IF_FALSE0
+push argument 1
+push constant 19
+eq
+push argument 2
+push constant 15
+eq
+and
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+not
+return
+label IF_FALSE1
+push argument 1
+push constant 10
+eq
+push argument 2
+push constant 1
+eq
+and
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 0
+not
+return
+label IF_FALSE2
+push argument 1
+push constant 10
+eq
+push argument 2
+push constant 29
+eq
+and
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push constant 0
+not
+return
+label IF_FALSE3
+push constant 0
+return
+function Board.isPortal 0
+push argument 0
+pop pointer 0
+push argument 1
+push constant 5
+eq
+push argument 2
+push constant 8
+eq
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+not
+return
+label IF_FALSE0
+push argument 1
+push constant 5
+eq
+push argument 2
+push constant 22
+eq
+and
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+not
+return
+label IF_FALSE1
+push argument 1
+push constant 16
+eq
+push argument 2
+push constant 3
+eq
+and
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 0
+not
+return
+label IF_FALSE2
+push argument 1
+push constant 16
+eq
+push argument 2
+push constant 27
+eq
+and
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push constant 0
+not
+return
+label IF_FALSE3
+push constant 0
+return
+function Board.isPortalIndex 0
+push argument 0
+pop pointer 0
+push argument 1
+push constant 163
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+not
+return
+label IF_FALSE0
+push argument 1
+push constant 177
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+not
+return
+label IF_FALSE1
+push argument 1
+push constant 499
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 0
+not
+return
+label IF_FALSE2
+push argument 1
+push constant 523
+eq
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push constant 0
+not
+return
+label IF_FALSE3
+push constant 0
+return
+function Board.linkedPortalIndex 0
+push argument 0
+pop pointer 0
+push argument 1
+push constant 163
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 523
+return
+label IF_FALSE0
+push argument 1
+push constant 523
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 163
+return
+label IF_FALSE1
+push argument 1
+push constant 177
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 499
+return
+label IF_FALSE2
+push argument 1
+push constant 499
+eq
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push constant 177
+return
+label IF_FALSE3
+push argument 1
+return
+function Board.linkedPortalRow 0
+push argument 0
+pop pointer 0
+push argument 1
+push constant 5
+eq
+push argument 2
+push constant 8
+eq
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 16
+return
+label IF_FALSE0
+push argument 1
+push constant 16
+eq
+push argument 2
+push constant 27
+eq
+and
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 5
+return
+label IF_FALSE1
+push argument 1
+push constant 5
+eq
+push argument 2
+push constant 22
+eq
+and
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 16
+return
+label IF_FALSE2
+push argument 1
+push constant 16
+eq
+push argument 2
+push constant 3
+eq
+and
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push constant 5
+return
+label IF_FALSE3
+push argument 1
+return
+function Board.linkedPortalCol 0
+push argument 0
+pop pointer 0
+push argument 1
+push constant 5
+eq
+push argument 2
+push constant 8
+eq
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 27
+return
+label IF_FALSE0
+push argument 1
+push constant 16
+eq
+push argument 2
+push constant 27
+eq
+and
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 8
+return
+label IF_FALSE1
+push argument 1
+push constant 5
+eq
+push argument 2
+push constant 22
+eq
+and
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 3
+return
+label IF_FALSE2
+push argument 1
+push constant 16
+eq
+push argument 2
+push constant 3
+eq
+and
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push constant 22
+return
+label IF_FALSE3
+push argument 2
+return
+function Board.animatePortals 0
+push argument 0
+pop pointer 0
+push this 8
+not
+pop this 8
+push pointer 0
+call Board.drawPortals 1
+pop temp 0
+push constant 0
+return
+function Board.drawPortals 0
+push argument 0
+pop pointer 0
+push pointer 0
+push constant 5
+push constant 8
+call Board.drawCell 3
+pop temp 0
+push pointer 0
+push constant 5
+push constant 22
+call Board.drawCell 3
+pop temp 0
+push pointer 0
+push constant 16
+push constant 3
+call Board.drawCell 3
+pop temp 0
+push pointer 0
+push constant 16
+push constant 27
+call Board.drawCell 3
+pop temp 0
+push constant 0
+return
 function Board.canEnter 0
 push argument 0
 pop pointer 0
@@ -344,6 +728,33 @@ label IF_TRUE4
 push constant 0
 return
 label IF_FALSE4
+push constant 0
+not
+return
+function Board.canRivalEnter 0
+push argument 0
+pop pointer 0
+push pointer 0
+push argument 1
+push argument 2
+call Board.canEnter 3
+not
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+label IF_FALSE0
+push pointer 0
+push argument 1
+push argument 2
+call Board.isSpeedBoost 3
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+return
+label IF_FALSE1
 push constant 0
 not
 return
@@ -1083,6 +1494,19 @@ push argument 1
 push argument 2
 call Board.drawItem 3
 pop temp 0
+push pointer 0
+push argument 1
+push argument 2
+call Board.isPortal 3
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push pointer 0
+push argument 1
+push argument 2
+call Board.drawPortal 3
+pop temp 0
+label IF_FALSE1
 label IF_END0
 push constant 0
 return
@@ -1448,6 +1872,398 @@ push constant 5
 add
 call Screen.drawRectangle 4
 pop temp 0
+push constant 0
+return
+function Board.portalKind 0
+push argument 0
+pop pointer 0
+push argument 1
+push constant 5
+eq
+push argument 2
+push constant 8
+eq
+and
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 1
+return
+label IF_FALSE0
+push argument 1
+push constant 16
+eq
+push argument 2
+push constant 27
+eq
+and
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 1
+return
+label IF_FALSE1
+push constant 2
+return
+function Board.drawPortal 2
+push argument 0
+pop pointer 0
+push pointer 0
+push argument 2
+call Board.xOf 2
+pop local 0
+push pointer 0
+push argument 1
+call Board.yOf 2
+pop local 1
+push pointer 0
+push argument 1
+push argument 2
+call Board.portalKind 3
+push constant 1
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push pointer 0
+push local 0
+push local 1
+call Board.drawPortalRing 3
+pop temp 0
+goto IF_END0
+label IF_FALSE0
+push pointer 0
+push local 0
+push local 1
+call Board.drawPortalCross 3
+pop temp 0
+label IF_END0
+push constant 0
+return
+function Board.drawPortalRing 0
+push argument 0
+pop pointer 0
+push constant 0
+call Screen.setColor 1
+pop temp 0
+push this 8
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 1
+push constant 4
+add
+push argument 2
+push constant 1
+add
+push argument 1
+push constant 5
+add
+push argument 2
+push constant 1
+add
+call Screen.drawRectangle 4
+pop temp 0
+push argument 1
+push constant 3
+add
+push argument 2
+push constant 2
+add
+push argument 1
+push constant 6
+add
+push argument 2
+push constant 2
+add
+call Screen.drawRectangle 4
+pop temp 0
+push argument 1
+push constant 2
+add
+push argument 2
+push constant 3
+add
+push argument 1
+push constant 7
+add
+push argument 2
+push constant 6
+add
+call Screen.drawRectangle 4
+pop temp 0
+push argument 1
+push constant 3
+add
+push argument 2
+push constant 7
+add
+push argument 1
+push constant 6
+add
+push argument 2
+push constant 7
+add
+call Screen.drawRectangle 4
+pop temp 0
+push argument 1
+push constant 4
+add
+push argument 2
+push constant 8
+add
+push argument 1
+push constant 5
+add
+push argument 2
+push constant 8
+add
+call Screen.drawRectangle 4
+pop temp 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push argument 1
+push constant 4
+add
+push argument 2
+push constant 4
+add
+push argument 1
+push constant 5
+add
+push argument 2
+push constant 5
+add
+call Screen.drawRectangle 4
+pop temp 0
+goto IF_END0
+label IF_FALSE0
+push argument 1
+push constant 4
+add
+push argument 2
+push constant 2
+add
+push argument 1
+push constant 5
+add
+push argument 2
+push constant 2
+add
+call Screen.drawRectangle 4
+pop temp 0
+push argument 1
+push constant 3
+add
+push argument 2
+push constant 3
+add
+push argument 1
+push constant 6
+add
+push argument 2
+push constant 6
+add
+call Screen.drawRectangle 4
+pop temp 0
+push argument 1
+push constant 4
+add
+push argument 2
+push constant 7
+add
+push argument 1
+push constant 5
+add
+push argument 2
+push constant 7
+add
+call Screen.drawRectangle 4
+pop temp 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push argument 1
+push constant 4
+add
+push argument 2
+push constant 4
+add
+push argument 1
+push constant 5
+add
+push argument 2
+push constant 5
+add
+call Screen.drawRectangle 4
+pop temp 0
+label IF_END0
+push constant 0
+return
+function Board.drawPortalCross 0
+push argument 0
+pop pointer 0
+push constant 0
+call Screen.setColor 1
+pop temp 0
+push this 8
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push argument 1
+push constant 2
+add
+push argument 2
+push constant 2
+add
+push argument 1
+push constant 3
+add
+push argument 2
+push constant 3
+add
+call Screen.drawRectangle 4
+pop temp 0
+push argument 1
+push constant 6
+add
+push argument 2
+push constant 2
+add
+push argument 1
+push constant 7
+add
+push argument 2
+push constant 3
+add
+call Screen.drawRectangle 4
+pop temp 0
+push argument 1
+push constant 4
+add
+push argument 2
+push constant 4
+add
+push argument 1
+push constant 5
+add
+push argument 2
+push constant 5
+add
+call Screen.drawRectangle 4
+pop temp 0
+push argument 1
+push constant 2
+add
+push argument 2
+push constant 6
+add
+push argument 1
+push constant 3
+add
+push argument 2
+push constant 7
+add
+call Screen.drawRectangle 4
+pop temp 0
+push argument 1
+push constant 6
+add
+push argument 2
+push constant 6
+add
+push argument 1
+push constant 7
+add
+push argument 2
+push constant 7
+add
+call Screen.drawRectangle 4
+pop temp 0
+push argument 1
+push constant 1
+add
+push argument 2
+push constant 4
+add
+push argument 1
+push constant 8
+add
+push argument 2
+push constant 5
+add
+call Screen.drawRectangle 4
+pop temp 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push argument 1
+push constant 3
+add
+push argument 2
+push constant 4
+add
+push argument 1
+push constant 6
+add
+push argument 2
+push constant 5
+add
+call Screen.drawRectangle 4
+pop temp 0
+goto IF_END0
+label IF_FALSE0
+push argument 1
+push constant 3
+add
+push argument 2
+push constant 3
+add
+push argument 1
+push constant 6
+add
+push argument 2
+push constant 6
+add
+call Screen.drawRectangle 4
+pop temp 0
+push argument 1
+push constant 2
+add
+push argument 2
+push constant 4
+add
+push argument 1
+push constant 7
+add
+push argument 2
+push constant 5
+add
+call Screen.drawRectangle 4
+pop temp 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push argument 1
+push constant 4
+add
+push argument 2
+push constant 4
+add
+push argument 1
+push constant 5
+add
+push argument 2
+push constant 5
+add
+call Screen.drawRectangle 4
+pop temp 0
+label IF_END0
 push constant 0
 return
 function Board.dispose 0

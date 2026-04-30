@@ -42,6 +42,8 @@ class Player {
       var int nextRow;
       var int nextCol;
       var int gained;
+      var int exitRow;
+      var int exitCol;
 
       let nextRow = row + deltaRow;
       let nextCol = col + deltaCol;
@@ -50,6 +52,12 @@ class Player {
          do board.drawCell(row, col);
          let row = nextRow;
          let col = nextCol;
+         if (board.isPortal(row, col)) {
+            let exitRow = board.linkedPortalRow(row, col);
+            let exitCol = board.linkedPortalCol(row, col);
+            let row = exitRow;
+            let col = exitCol;
+         }
          let gained = board.collectAt(row, col);
          do draw();
          return gained;

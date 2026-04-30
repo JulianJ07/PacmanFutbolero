@@ -9,6 +9,7 @@ class Game {
    field int score;
    field int tick;
    field int hudTick;
+   field int portalTick;
    field int powerTimer;
    field boolean blinkState;
    field boolean running;
@@ -26,6 +27,7 @@ class Game {
       let score = 0;
       let tick = 0;
       let hudTick = 0;
+      let portalTick = 0;
       let powerTimer = 0;
       let blinkState = false;
       let running = true;
@@ -146,6 +148,14 @@ class Game {
                let hudTick = 0;
                do drawHud();
             }
+         }
+
+         let portalTick = portalTick + 1;
+         if (portalTick > 3) {
+            let portalTick = 0;
+            do board.animatePortals();
+            do player.draw();
+            do drawActiveRivals();
          }
 
          do Sys.wait(55);

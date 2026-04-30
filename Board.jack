@@ -7,6 +7,7 @@ class Board {
    field Array items;
    field int remaining;
    field int total;
+   field boolean portalBlink;
 
    constructor Board new() {
       var int row;
@@ -20,6 +21,7 @@ class Board {
       let originY = 38;
       let remaining = 0;
       let total = 0;
+      let portalBlink = false;
       let items = Array.new(rows * cols);
 
       let i = 0;
@@ -62,6 +64,10 @@ class Board {
       do setItem(19, 15, 2);
       do setItem(10, 1, 2);
       do setItem(10, 29, 2);
+      do setItem(5, 8, 0);
+      do setItem(5, 22, 0);
+      do setItem(16, 3, 0);
+      do setItem(16, 27, 0);
       let total = remaining;
 
       return this;
@@ -109,6 +115,116 @@ class Board {
       return total - remaining;
    }
 
+   method boolean isSpeedBoost(int row, int col) {
+      if ((row = 1) & (col = 15)) {
+         return true;
+      }
+      if ((row = 19) & (col = 15)) {
+         return true;
+      }
+      if ((row = 10) & (col = 1)) {
+         return true;
+      }
+      if ((row = 10) & (col = 29)) {
+         return true;
+      }
+      return false;
+   }
+
+   method boolean isPortal(int row, int col) {
+      if ((row = 5) & (col = 8)) {
+         return true;
+      }
+      if ((row = 5) & (col = 22)) {
+         return true;
+      }
+      if ((row = 16) & (col = 3)) {
+         return true;
+      }
+      if ((row = 16) & (col = 27)) {
+         return true;
+      }
+      return false;
+   }
+
+   method boolean isPortalIndex(int index) {
+      if (index = 163) {
+         return true;
+      }
+      if (index = 177) {
+         return true;
+      }
+      if (index = 499) {
+         return true;
+      }
+      if (index = 523) {
+         return true;
+      }
+      return false;
+   }
+
+   method int linkedPortalIndex(int index) {
+      if (index = 163) {
+         return 523;
+      }
+      if (index = 523) {
+         return 163;
+      }
+      if (index = 177) {
+         return 499;
+      }
+      if (index = 499) {
+         return 177;
+      }
+      return index;
+   }
+
+   method int linkedPortalRow(int row, int col) {
+      if ((row = 5) & (col = 8)) {
+         return 16;
+      }
+      if ((row = 16) & (col = 27)) {
+         return 5;
+      }
+      if ((row = 5) & (col = 22)) {
+         return 16;
+      }
+      if ((row = 16) & (col = 3)) {
+         return 5;
+      }
+      return row;
+   }
+
+   method int linkedPortalCol(int row, int col) {
+      if ((row = 5) & (col = 8)) {
+         return 27;
+      }
+      if ((row = 16) & (col = 27)) {
+         return 8;
+      }
+      if ((row = 5) & (col = 22)) {
+         return 3;
+      }
+      if ((row = 16) & (col = 3)) {
+         return 22;
+      }
+      return col;
+   }
+
+   method void animatePortals() {
+      let portalBlink = ~portalBlink;
+      do drawPortals();
+      return;
+   }
+
+   method void drawPortals() {
+      do drawCell(5, 8);
+      do drawCell(5, 22);
+      do drawCell(16, 3);
+      do drawCell(16, 27);
+      return;
+   }
+
    method boolean canEnter(int row, int col) {
       if (row < 0) {
          return false;
@@ -123,6 +239,16 @@ class Board {
          return false;
       }
       if (isWall(row, col)) {
+         return false;
+      }
+      return true;
+   }
+
+   method boolean canRivalEnter(int row, int col) {
+      if (~canEnter(row, col)) {
+         return false;
+      }
+      if (isSpeedBoost(row, col)) {
          return false;
       }
       return true;
@@ -289,6 +415,9 @@ class Board {
          do Screen.setColor(true);
          do Screen.drawRectangle(x, y, (x + cellSize) - 1, (y + cellSize) - 1);
          do drawItem(row, col);
+         if (isPortal(row, col)) {
+            do drawPortal(row, col);
+         }
       }
 
       return;
@@ -377,6 +506,72 @@ class Board {
       do Screen.drawRectangle(x + 4, y + 2, x + 5, y + 7);
       do Screen.drawRectangle(x + 2, y + 4, x + 7, y + 5);
 
+      return;
+   }
+
+   method int portalKind(int row, int col) {
+      if ((row = 5) & (col = 8)) {
+         return 1;
+      }
+      if ((row = 16) & (col = 27)) {
+         return 1;
+      }
+      return 2;
+   }
+
+   method void drawPortal(int row, int col) {
+      var int x;
+      var int y;
+
+      let x = xOf(col);
+      let y = yOf(row);
+
+      if (portalKind(row, col) = 1) {
+         do drawPortalRing(x, y);
+      } else {
+         do drawPortalCross(x, y);
+      }
+
+      return;
+   }
+
+   method void drawPortalRing(int x, int y) {
+      do Screen.setColor(false);
+      if (portalBlink) {
+         do Screen.drawRectangle(x + 4, y + 1, x + 5, y + 1);
+         do Screen.drawRectangle(x + 3, y + 2, x + 6, y + 2);
+         do Screen.drawRectangle(x + 2, y + 3, x + 7, y + 6);
+         do Screen.drawRectangle(x + 3, y + 7, x + 6, y + 7);
+         do Screen.drawRectangle(x + 4, y + 8, x + 5, y + 8);
+         do Screen.setColor(true);
+         do Screen.drawRectangle(x + 4, y + 4, x + 5, y + 5);
+      } else {
+         do Screen.drawRectangle(x + 4, y + 2, x + 5, y + 2);
+         do Screen.drawRectangle(x + 3, y + 3, x + 6, y + 6);
+         do Screen.drawRectangle(x + 4, y + 7, x + 5, y + 7);
+         do Screen.setColor(true);
+         do Screen.drawRectangle(x + 4, y + 4, x + 5, y + 5);
+      }
+      return;
+   }
+
+   method void drawPortalCross(int x, int y) {
+      do Screen.setColor(false);
+      if (portalBlink) {
+         do Screen.drawRectangle(x + 2, y + 2, x + 3, y + 3);
+         do Screen.drawRectangle(x + 6, y + 2, x + 7, y + 3);
+         do Screen.drawRectangle(x + 4, y + 4, x + 5, y + 5);
+         do Screen.drawRectangle(x + 2, y + 6, x + 3, y + 7);
+         do Screen.drawRectangle(x + 6, y + 6, x + 7, y + 7);
+         do Screen.drawRectangle(x + 1, y + 4, x + 8, y + 5);
+         do Screen.setColor(true);
+         do Screen.drawRectangle(x + 3, y + 4, x + 6, y + 5);
+      } else {
+         do Screen.drawRectangle(x + 3, y + 3, x + 6, y + 6);
+         do Screen.drawRectangle(x + 2, y + 4, x + 7, y + 5);
+         do Screen.setColor(true);
+         do Screen.drawRectangle(x + 4, y + 4, x + 5, y + 5);
+      }
       return;
    }
 

@@ -134,6 +134,9 @@ class Rival {
          let tail = Rival.addPathIndex(current + 31, currentDistance + 1, tail);
          let tail = Rival.addPathIndex(current - 1, currentDistance + 1, tail);
          let tail = Rival.addPathIndex(current - 31, currentDistance + 1, tail);
+         if (gameBoard.isPortalIndex(current)) {
+            let tail = Rival.addPathIndex(gameBoard.linkedPortalIndex(current), currentDistance + 1, tail);
+         }
       }
 
       let pathTail = tail;
@@ -150,7 +153,7 @@ class Rival {
          let col = 0;
          while (col < 31) {
             let index = Rival.pathIndex(row, col);
-            let pathOpen[index] = gameBoard.canEnter(row, col);
+            let pathOpen[index] = gameBoard.canRivalEnter(row, col);
             let col = col + 1;
          }
          let row = row + 1;
@@ -438,16 +441,28 @@ class Rival {
 
    method boolean tryMove(int nextRow, int nextCol) {
       var int nextIndex;
+      var int finalRow;
+      var int finalCol;
+      var int finalIndex;
 
-      if (board.canEnter(nextRow, nextCol)) {
+      if (board.canRivalEnter(nextRow, nextCol)) {
          let nextIndex = Rival.pathIndex(nextRow, nextCol);
          if (~Rival.isReservedIndex(nextIndex)) {
-            do board.drawCell(row, col);
-            let row = nextRow;
-            let col = nextCol;
-            do Rival.reserveCell(row, col);
-            do draw();
-            return true;
+            let finalRow = nextRow;
+            let finalCol = nextCol;
+            if (board.isPortal(nextRow, nextCol)) {
+               let finalRow = board.linkedPortalRow(nextRow, nextCol);
+               let finalCol = board.linkedPortalCol(nextRow, nextCol);
+            }
+            let finalIndex = Rival.pathIndex(finalRow, finalCol);
+            if (~Rival.isReservedIndex(finalIndex)) {
+               do board.drawCell(row, col);
+               let row = finalRow;
+               let col = finalCol;
+               do Rival.reserveCell(row, col);
+               do draw();
+               return true;
+            }
          }
       }
 

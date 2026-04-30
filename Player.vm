@@ -51,7 +51,7 @@ call Player.draw 1
 pop temp 0
 push constant 0
 return
-function Player.move 3
+function Player.move 5
 push argument 0
 pop pointer 0
 push this 1
@@ -78,6 +78,28 @@ push local 0
 pop this 1
 push local 1
 pop this 2
+push this 0
+push this 1
+push this 2
+call Board.isPortal 3
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 0
+push this 1
+push this 2
+call Board.linkedPortalRow 3
+pop local 3
+push this 0
+push this 1
+push this 2
+call Board.linkedPortalCol 3
+pop local 4
+push local 3
+pop this 1
+push local 4
+pop this 2
+label IF_FALSE1
 push this 0
 push this 1
 push this 2
